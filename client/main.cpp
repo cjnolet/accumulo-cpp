@@ -6,7 +6,7 @@
 #include <transport/TSocket.h>
 #include <transport/TBufferTransports.h>
 #include <protocol/TCompactProtocol.h>
-#include "AccumuloProxy.h"
+#include "proxy/AccumuloProxy.h"
 
 using namespace std;
 using namespace accumulo;
