@@ -37,10 +37,39 @@ int main(int argc, char* argv[]) {
 
   AccumuloProxyClient client(protocol);
 
+  string tableName("testTable");
+
   transport->open();
   client.login(login, username, m);
-  cout << "RETURNED: " + login;
-  transport->close();
+  // client.createTable(login, tableName, true, TimeType::MILLIS);
 
-	
+  WriterOptions writerOptions;
+  writerOptions.__set_maxMemory(5000);
+  writerOptions.__set_latencyMs(5000);
+  writerOptions.__set_timeoutMs(200000);
+  writerOptions.__set_threads(5);
+
+  string writer;
+  client.createWriter(writer, login, tableName, writerOptions);
+
+	ColumnUpdate cUpdate;
+	cUpdate.__set_colFamily(string("colFam"));
+	cUpdate.__set_colQualifier(string("colQual"));
+	cUpdate.__set_colVisibility(string(""));
+	cUpdate.__set_timestamp(5000);
+	cUpdate.__set_value(string(""));
+
+   map<string, vector<ColumnUpdate> > cells;
+
+  string rowId("rowId");
+
+  ColumnUpdate upArr[]  = { cUpdate };
+
+  vector<ColumnUpdate> ud(upArr, upArr + sizeof(upArr) / sizeof(ColumnUpdate));
+  
+  cells.insert(make_pair(rowId, ud));
+  
+  client.update(writer, cells);
+
+  transport->close();
 }
