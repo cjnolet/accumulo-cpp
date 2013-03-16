@@ -68,15 +68,38 @@ void Connector::close() {
 class Mutation {
 	
 	string rowId;
+	vector<ColumnUpdate> updates;
 
 	public:
 		Mutation(string &rowId);
 		void put(string& colFam, string& colQual, string& colVis, uint32_t timestamp, string& value);
+		string getRowId();
+		vector<ColumnUpdate> getUpdates();
 	
 };
 
 Mutation::Mutation(string& rowId) {
 	this->rowId = rowId;
+}
+
+void Mutation::put(string& colFam, string& colQual, string& colVis, uint32_t timestamp, string& value) {
+
+	ColumnUpdate cUpdate;
+	cUpdate.__set_colFamily(colFam);
+	cUpdate.__set_colQualifier(colQual);
+	cUpdate.__set_colVisibility(colVis);
+	cUpdate.__set_timestamp(timestamp);
+	cUpdate.__set_value(value);
+	
+	updates.push_back(cUpdate);
+}
+
+string Mutation::getRowId() {
+	return rowId;
+}
+
+vector<ColumnUpdate> Mutation::getUpdates() {
+	return updates;
 }
 
 
@@ -86,12 +109,12 @@ class BatchWriter {
 	string login;
 	string writerToken;
 	string tableName;
-	
+		
 	public:
 		
 		BatchWriter(AccumuloProxyClient *client, string &login, string &tableName,
 				uint32_t maxMemory, uint32_t latencyMs, uint32_t timeoutMs, uint32_t numThreads);
-		void addMutation(Mutation *mutation);
+		void addMutation(Mutation &mutation);
 		void flush();
 		void close(); 
 };
@@ -112,6 +135,18 @@ BatchWriter::BatchWriter(AccumuloProxyClient *client, string &login, string &tab
 	client->createWriter(writerToken, login, tableName, writerOptions);
 }
 
+void BatchWriter::addMutation(Mutation &mutation) {
+	
+	map<string, vector<ColumnUpdate> > cells;
+
+	vector<ColumnUpdate> updates = mutation.getUpdates();
+
+	cells.insert(make_pair(mutation.getRowId(), updates));
+	client->update(writerToken, cells);
+	
+	updates.clear();
+}
+
 void BatchWriter::flush() {
 	
 	client->flush(writerToken);
@@ -122,15 +157,6 @@ void BatchWriter::close() {
 }
 
 
-void Mutation::put(string& colFam, string& colQual, string& colVis, uint32_t timestamp, string& value) {
-
-	ColumnUpdate cUpdate;
-	cUpdate.__set_colFamily(string("colFam"));
-	cUpdate.__set_colQualifier(string("colQual"));
-	cUpdate.__set_colVisibility(string(""));
-	cUpdate.__set_timestamp(5000);
-	cUpdate.__set_value(string(""));
-}
 
 
 int main(int argc, char* argv[]) {
@@ -171,7 +197,6 @@ int main(int argc, char* argv[]) {
 	// 
 	//   string rowId("rowId");
 	// 
-	//   ColumnUpdate upArr[]  = { cUpdate };
 	// 
 	//   vector<ColumnUpdate> ud(upArr, upArr + sizeof(upArr) / sizeof(ColumnUpdate));
 	//   
