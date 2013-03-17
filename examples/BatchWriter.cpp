@@ -1,4 +1,4 @@
-#include "../AccumuloAPI.h"
+#include "../client/AccumuloAPI.h"
 
 int main(int argc, char* argv[]) {
 
