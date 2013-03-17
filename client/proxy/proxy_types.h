@@ -522,6 +522,10 @@ class ScanColumn {
     __isset.colQualifier = true;
   }
 
+  std::string getColFamily() {
+	return colFamily;
+  }
+
   bool operator == (const ScanColumn & rhs) const
   {
     if (!(colFamily == rhs.colFamily))
@@ -663,6 +667,14 @@ class ScanOptions {
   void __set_bufferSize(const int32_t val) {
     bufferSize = val;
     __isset.bufferSize = true;
+  }
+
+  std::vector<ScanColumn> getColumns() {
+	return columns;
+  }
+
+  std::vector<IteratorSetting> getIterators() {
+	return iterators;
   }
 
   bool operator == (const ScanOptions & rhs) const

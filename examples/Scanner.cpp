@@ -2,11 +2,10 @@
 
 int main(int argc, char* argv[]) {
 
-	if(argc != 5) {
-		cout << "Usage: " << argv[0] << " <host> <port> <startRowId> <stopRowId>\n";	
+	if(argc < 5 || argc > 7) {
+		cout << "Usage: " << argv[0] << " <host> <port> <startRowId> <stopRowId> <colFam> <colQual>\n";	
 		return 1;
 	}
-
 	
 	Connector connector(argv[1], atoi(argv[2]), string("root"), string("secret"));
 
@@ -26,16 +25,33 @@ int main(int argc, char* argv[]) {
 
 	scanner.setRange(range);
 	
+	if(argc > 5) {
+		
+		string colFam(argv[5]);
+		
+		if(argc == 6) {
+			
+			scanner.fetchColumnFamily(colFam);
+		}
+		
+		else if(argc == 7) {
+			
+			string colQual(argv[6]);
+			scanner.fetchColumn(colFam, colQual);
+		}
+	}
+	
 	ScannerIterator itr = scanner.iterator();
 	
 	while(itr.hasNext()) {
 		KeyValue kv = itr.next();
 
-		cout << "ROW:\t" + kv.getKey().getRow() << "\t" << kv.getKey().getColFamily() << ":" << kv.getKey().getColQualifier() << "\t[" <<
-				kv.getKey().getColVisibility() << "]\t" << kv.getKey().getTimestamp() << "\t\t" << kv.getValue() << "\n";
+		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" << kv.getKey().getColQualifier() << " [" <<
+				kv.getKey().getColVisibility() << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
 
 	}
 	
+	itr.close();
 	connector.close();
 	
 	return 0;

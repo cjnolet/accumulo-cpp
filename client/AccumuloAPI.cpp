@@ -113,11 +113,17 @@ KeyValue ScannerIterator::next() {
 	return kv;
 }
 
+void ScannerIterator::close() {
+	client.get()->closeScanner(scannerToken);
+}
+
 Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 		const set<string> authorizations) {
 
 	options.__set_authorizations(authorizations);
 	options.__set_bufferSize(500000);
+	options.__set_columns(columns);
+	options.__set_iterators(iterators);
 
 	this->client = proxyClient;
 	this->login = login;
@@ -125,13 +131,38 @@ Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& logi
 }
 
 void Scanner::setRange(const Range &range) {
-
 	options.__set_range(range);
 }
 
 ScannerIterator Scanner::iterator(void) {
+	
+	options.__set_columns(columns);
+	options.__set_iterators(iterators);
+	
 	ScannerIterator iterator(client, login, tableName, options);
 	return iterator;
+}
+
+void Scanner::fetchColumn(const string& colFamily, const string& colQual) {
+
+	ScanColumn scanColumn;
+	scanColumn.__set_colFamily(colFamily);
+	scanColumn.__set_colQualifier(colQual);
+	
+	columns.push_back(scanColumn);
+}
+
+void Scanner::fetchColumnFamily(const string& colFamily) {
+
+	ScanColumn scanColumn;
+	scanColumn.__set_colFamily(colFamily);
+	
+	columns.push_back(scanColumn);
+}
+
+void Scanner::attachScanIterator(const IteratorSetting &iteratorSetting) {
+	
+	iterators.push_back(iteratorSetting);
 }
 
 Connector::Connector(const string& host, int port, const string& username, const string& password) {

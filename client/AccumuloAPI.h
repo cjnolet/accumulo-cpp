@@ -60,11 +60,17 @@ public:
 	ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, ScanOptions options); 
 	bool hasNext(void);
 	KeyValue next(void);
+	void close();
+	
 };
 
 class Scanner {
 	
 	shared_ptr<AccumuloProxyClient> client;
+	
+	vector<ScanColumn> columns;
+	vector<IteratorSetting> iterators;
+
 	ScanOptions options;
 	string login;
 	string tableName;
