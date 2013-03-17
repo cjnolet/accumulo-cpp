@@ -7,26 +7,8 @@
 #include <transport/TBufferTransports.h>
 #include <protocol/TCompactProtocol.h>
 #include "proxy/AccumuloProxy.h"
+#include "AccumuloAPI.h"
 
-using namespace std;
-using namespace accumulo;
-using namespace apache::thrift;
-using namespace apache::thrift::protocol;
-using namespace apache::thrift::transport;
-using namespace boost;
-
-class Mutation {
-	
-	string rowId;
-	shared_ptr<vector<ColumnUpdate> > updates;
-
-	public:
-		Mutation(const string& rowId);
-		void put(const string& colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value);
-		string& getRowId();
-		shared_ptr<vector<ColumnUpdate> > getUpdates();
-	
-};
 
 Mutation::Mutation(const string& rowId) {
 	this->rowId = rowId;
@@ -55,23 +37,11 @@ shared_ptr<vector<ColumnUpdate> > Mutation::getUpdates() {
 	return updates;
 }
 
+void Mutation::clear() {
+	
+	updates.reset(new vector<ColumnUpdate>());
+}
 
-class BatchWriter {
-
-
-	shared_ptr<AccumuloProxyClient> client;
-	string login;
-	string writerToken;
-	string tableName;
-		
-	public:
-		
-        BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
-                const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads);
-        void addMutation(Mutation &mutation);
-        void flush();
-        void close(); 
-};
 
 BatchWriter::BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
 		const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads) {
@@ -95,17 +65,15 @@ BatchWriter::BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const stri
 void BatchWriter::addMutation(Mutation &mutation) {
 	
 	map<string, vector<ColumnUpdate> > cells;
-
 	vector<ColumnUpdate> *updates = mutation.getUpdates().get();
     
 	string& rowId = mutation.getRowId();
-	cout << writerToken;
 
 	cells.insert(make_pair(rowId, *updates));
 
 	client.get()->update(writerToken, cells);
-
-	updates.clear();
+	
+	mutation.clear();
 }
 
 void BatchWriter::flush() {
@@ -117,24 +85,6 @@ void BatchWriter::close() {
 	client->closeWriter(writerToken);
 }
 
-class Connector {
-	
-	string login;
-	
-	shared_ptr<TSocket> socket;
-	shared_ptr<TTransport> transport;
-	shared_ptr<TProtocol> protocol;
-
-	shared_ptr<AccumuloProxyClient> client;
-	
-	public:
-
-		Connector(const string& host, int port, const string& username, const string& password);
-		void createTable(string& tableName);
-		BatchWriter createBatchWriter(const string& tableName, int64_t maxMemory, int64_t latencyMs, int64_t timeoutMs, int32_t numThreads);
-		void close();
-	
-};
 
 Connector::Connector(const string& host, int port, const string& username, const string& password) {
 
@@ -148,16 +98,14 @@ Connector::Connector(const string& host, int port, const string& username, const
 
 	transport->open();
 
-	string passKey("password");
+	string passkey("password");
 
   	map<string, string> m;
-  	m.insert(make_pair(passKey, password));
+  	m.insert(make_pair(passkey, password));
 	
 	client.reset(new AccumuloProxyClient(protocol));
 	
   	client.get()->login(login, username, m);
-
-	string tableName("tableName4");
 }
 
 void Connector::createTable(string& tableName) {
@@ -174,32 +122,4 @@ BatchWriter Connector::createBatchWriter(const string& tableName, const int64_t 
 	BatchWriter writer(client, login, tableName, maxMemory, latencyMs, timeoutMs, numThreads);
 	
 	return writer;
-}
-
-
-int main(int argc, char* argv[]) {
-
-	if(argc != 3) {
-		cout << "Enter a hostname and port\n";	
-		return 1;
-	}
-
-	
-	Connector connector(argv[1], atoi(argv[2]), string("root"), string("secret"));
-	BatchWriter writer = connector.createBatchWriter(string("testTable"), 500, 100, 100, 1);
-	Mutation mutation(string("rowid1"));
-	
-	string colFam("colFam");
-	string colQual("colQual");
-	string colVis("");
-	string val("");
-	
-	for(int i = 0; i < 50000; i++) {
-		mutation.put( colFam, colQual, colVis, int64_t(500000), val);
-	}
-	
-	writer.addMutation(mutation);
-	
-	connector.close();
-	return 0;
 }
