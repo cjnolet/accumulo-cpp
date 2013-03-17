@@ -85,6 +85,26 @@ void BatchWriter::close() {
 	client->closeWriter(writerToken);
 }
 
+ScannerIterator::ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+				ScanOptions options) {
+					
+	this->client = proxyClient;
+	this->options = options;
+	this->tableName = tableName;
+	this->login = login;
+	
+	client.get()->createScanner(scannerToken, login, tableName, options);
+}
+
+Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+		const set<string> authorizations) {
+
+		options.__set_authorizations(authorizations);
+
+		this->client = proxyClient;
+		this->login = login;
+		this->tableName;
+}
 
 Connector::Connector(const string& host, int port, const string& username, const string& password) {
 
