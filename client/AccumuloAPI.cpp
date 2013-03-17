@@ -1,12 +1,3 @@
-#include <string>
-#include <stdlib.h>
-#include <iostream>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <transport/TSocket.h>
-#include <transport/TBufferTransports.h>
-#include <protocol/TCompactProtocol.h>
-#include "proxy/AccumuloProxy.h"
 #include "AccumuloAPI.h"
 
 Mutation::Mutation(const string& rowId) {

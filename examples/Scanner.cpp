@@ -14,15 +14,9 @@ int main(int argc, char* argv[]) {
 	
 	Scanner scanner = connector.createScanner(string("testTable"), auths);
 
-	Range range;
-	Key key;
-	key.__set_row(string(argv[3]));
-	range.__set_start(key);
-	
-	Key stopKey;
-	stopKey.__set_row(string(argv[4]));
-	range.__set_stop(stopKey);
-
+	Key start(argv[3]);
+	Key stop(argv[4]);
+	Range range(start, stop);
 	scanner.setRange(range);
 	
 	if(argc > 5) {

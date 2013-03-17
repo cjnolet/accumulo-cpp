@@ -136,6 +136,10 @@ class Key {
   Key() : row(), colFamily(), colQualifier(), colVisibility(), timestamp(0) {
   }
 
+  Key(const std::string& rowId) : colFamily(), colQualifier(), colVisibility(), timestamp(0) {
+	this->row = rowId;
+  }
+
   virtual ~Key() throw() {}
 
   std::string row;
@@ -341,7 +345,7 @@ class KeyValue {
     value = val;
   }
 
-  Key getKey() {
+  Key& getKey() {
 	return key;
   }
 
@@ -367,6 +371,7 @@ class KeyValue {
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
+
 
 void swap(KeyValue &a, KeyValue &b);
 
@@ -436,6 +441,11 @@ class Range {
   static const uint8_t binary_fingerprint[16]; // = {0x84,0xC5,0xBA,0x8D,0xB7,0x18,0xE6,0x0B,0xFB,0xF3,0xF8,0x38,0x67,0x64,0x7B,0x45};
 
   Range() : startInclusive(0), stopInclusive(0) {
+  }
+
+  Range(const Key &start, const Key &stop) : startInclusive(0), stopInclusive(0) {
+	this->start = start;
+	this->stop = stop;
   }
 
   virtual ~Range() throw() {}
@@ -851,7 +861,7 @@ class KeyValueAndPeek {
   }
 
   bool operator < (const KeyValueAndPeek & ) const;
-
+  
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
