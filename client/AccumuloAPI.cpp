@@ -28,7 +28,7 @@ void Mutation::put(const string& colFam, const string& colQual, const string& co
 	vecUpdates->push_back(cUpdate);
 }
 
-string& Mutation::getRowId() {
+string Mutation::getRowId() {
 	return rowId;
 }
 
@@ -66,7 +66,7 @@ void BatchWriter::addMutation(Mutation &mutation) {
 	map<string, vector<ColumnUpdate> > cells;
 	vector<ColumnUpdate> *updates = mutation.getUpdates().get();
     
-	string& rowId = mutation.getRowId();
+	string rowId = mutation.getRowId();
 
 	cells.insert(make_pair(rowId, *updates));
 

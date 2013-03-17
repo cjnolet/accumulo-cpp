@@ -2,8 +2,8 @@
 
 int main(int argc, char* argv[]) {
 
-	if(argc != 4) {
-		cout << "Usage: " << argv[0] << " <host> <port> <numMutations>\n";	
+	if(argc != 8) {
+		cout << "Usage: " << argv[0] << " <host> <port> <rowId> <colFam> <colQual> <colVis> <val>\n";	
 		return 1;
 	}
 
@@ -11,28 +11,20 @@ int main(int argc, char* argv[]) {
 	Connector connector(argv[1], atoi(argv[2]), string("root"), string("secret"));
 	BatchWriter writer = connector.createBatchWriter(string("testTable"), 500, 100, 100, 1);
 
-	Mutation mutation(string("rowid1"));
-	
-	int numItems = atoi(argv[3]);
-	
-	for(int i = 0; i < numItems; i++) {
-		
-		mutation.put( string("colFam"), string("colQual"), string("colVis"), int64_t(500000), string("val"));
+	string rowId(argv[3]);
+	string colFam(argv[4]);
+	string colQual(argv[5]);
+	string colVis(argv[6]);
+	string val(argv[7]);
 
-		if(i > 0 && i % 10000 == 0) {
-			
-			writer.addMutation(mutation);
-			cout << "Written " << i << " out of " << numItems << " so far...\n";
-		}
-	}
-	
+	Mutation mutation(rowId);
+	mutation.put(colFam, colQual, colVis, int64_t(500000), val);
+
 	writer.addMutation(mutation);
 	writer.flush();
 	writer.close();
 	
 	connector.close();
 	
-	cout << "\nSuccessfully wrote " << numItems << " mutations.\n";
-
 	return 0;
 }

@@ -27,7 +27,7 @@ public:
 	
 	Mutation(const string& rowId);
 	void put(const string& colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value);
-	string& getRowId();
+	string getRowId();
 	void clear();
 	shared_ptr<vector<ColumnUpdate> > getUpdates();
 };
