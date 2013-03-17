@@ -1,4 +1,4 @@
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <iostream>
 #include <sys/socket.h>
@@ -8,7 +8,6 @@
 #include <protocol/TCompactProtocol.h>
 #include "proxy/AccumuloProxy.h"
 #include "AccumuloAPI.h"
-
 
 Mutation::Mutation(const string& rowId) {
 	this->rowId = rowId;
@@ -92,18 +91,47 @@ ScannerIterator::ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, co
 	this->options = options;
 	this->tableName = tableName;
 	this->login = login;
-	
+
 	client.get()->createScanner(scannerToken, login, tableName, options);
+}
+
+bool ScannerIterator::hasNext() {
+	
+	return client.get()->hasNext(scannerToken);
+}
+
+KeyValue ScannerIterator::next() {
+
+	KeyValueAndPeek kvap;
+	KeyValue kv;
+	
+	if(hasNext()) {
+		client.get()->nextEntry(kvap, scannerToken);
+		kv = kvap.getKeyValue();
+	}
+
+	return kv;
 }
 
 Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 		const set<string> authorizations) {
 
-		options.__set_authorizations(authorizations);
+	options.__set_authorizations(authorizations);
+	options.__set_bufferSize(500000);
 
-		this->client = proxyClient;
-		this->login = login;
-		this->tableName;
+	this->client = proxyClient;
+	this->login = login;
+	this->tableName = tableName;
+}
+
+void Scanner::setRange(const Range &range) {
+
+	options.__set_range(range);
+}
+
+ScannerIterator Scanner::iterator(void) {
+	ScannerIterator iterator(client, login, tableName, options);
+	return iterator;
 }
 
 Connector::Connector(const string& host, int port, const string& username, const string& password) {
@@ -140,6 +168,11 @@ BatchWriter Connector::createBatchWriter(const string& tableName, const int64_t 
 	const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads) {
 	
 	BatchWriter writer(client, login, tableName, maxMemory, latencyMs, timeoutMs, numThreads);
-	
 	return writer;
+}
+
+Scanner Connector::createScanner(const string& tableName, const set<string> authorizations) {
+	
+	Scanner scanner(client, login, tableName, authorizations);
+	return scanner;
 }

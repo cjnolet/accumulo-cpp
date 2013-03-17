@@ -1,4 +1,4 @@
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <iostream>
 #include <sys/socket.h>

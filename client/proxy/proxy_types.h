@@ -167,6 +167,26 @@ class Key {
     __isset.timestamp = true;
   }
 
+  std::string getRow() {
+	return row;
+  }
+
+  std::string getColFamily() {
+	return colFamily;
+  }
+
+  std::string getColQualifier() {
+	return colQualifier;
+  }
+
+  std::string getColVisibility() {
+	return colVisibility;
+  }
+
+  int64_t getTimestamp() {
+	return timestamp;
+  }
+
   bool operator == (const Key & rhs) const
   {
     if (!(row == rhs.row))
@@ -187,7 +207,7 @@ class Key {
     return !(*this == rhs);
   }
 
-  bool operator < (const Key & ) const;
+  bool operator < (const Key &rhs ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -321,6 +341,14 @@ class KeyValue {
     value = val;
   }
 
+  Key getKey() {
+	return key;
+  }
+
+  std::string getValue() {
+	return value;
+  }
+
   bool operator == (const KeyValue & rhs) const
   {
     if (!(key == rhs.key))
@@ -452,8 +480,8 @@ class Range {
   }
 
   // CHANGE HERE
-  bool operator < (const Range & ) const {
-	return true;
+  bool operator < (const Range &rhs ) const {
+	return false;
   }
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
@@ -792,6 +820,10 @@ class KeyValueAndPeek {
 
   void __set_hasNext(const bool val) {
     hasNext = val;
+  }
+
+  KeyValue getKeyValue() {
+	return keyValue;
   }
 
   bool operator == (const KeyValueAndPeek & rhs) const
