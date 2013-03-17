@@ -46,8 +46,9 @@ int main(int argc, char* argv[]) {
 	while(itr.hasNext()) {
 		KeyValue kv = itr.next();
 
-		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" << kv.getKey().getColQualifier() << " [" <<
-				kv.getKey().getColVisibility() << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
+			 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
+			 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
 
 	}
 	
