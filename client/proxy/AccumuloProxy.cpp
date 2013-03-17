@@ -21044,7 +21044,7 @@ void AccumuloProxyClient::send_update(const std::string& writer, const std::map<
   args.writer = &writer;
   args.cells = &cells;
   args.write(oprot_);
-
+  
   oprot_->writeMessageEnd();
   oprot_->getTransport()->writeEnd();
   oprot_->getTransport()->flush();

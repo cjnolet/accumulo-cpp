@@ -15,6 +15,108 @@ using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace boost;
 
+class Mutation {
+	
+	string rowId;
+	shared_ptr<vector<ColumnUpdate> > updates;
+
+	public:
+		Mutation(const string& rowId);
+		void put(const string& colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value);
+		string& getRowId();
+		shared_ptr<vector<ColumnUpdate> > getUpdates();
+	
+};
+
+Mutation::Mutation(const string& rowId) {
+	this->rowId = rowId;
+	updates.reset(new vector<ColumnUpdate>());
+}
+
+void Mutation::put(const string& colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value) {
+
+	ColumnUpdate cUpdate;
+	cUpdate.__set_colFamily(colFam);
+	cUpdate.__set_colQualifier(colQual);
+	cUpdate.__set_colVisibility(colVis);
+	cUpdate.__set_timestamp(timestamp);
+	cUpdate.__set_value(value);
+	
+	vector<ColumnUpdate> *vecUpdates = updates.get();
+	
+	vecUpdates->push_back(cUpdate);
+}
+
+string& Mutation::getRowId() {
+	return rowId;
+}
+
+shared_ptr<vector<ColumnUpdate> > Mutation::getUpdates() {
+	return updates;
+}
+
+
+class BatchWriter {
+
+
+	shared_ptr<AccumuloProxyClient> client;
+	string login;
+	string writerToken;
+	string tableName;
+		
+	public:
+		
+        BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
+                const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads);
+        void addMutation(Mutation &mutation);
+        void flush();
+        void close(); 
+};
+
+BatchWriter::BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
+		const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads) {
+	
+	WriterOptions writerOptions;
+	writerOptions.__set_maxMemory(maxMemory);
+	writerOptions.__set_latencyMs(latencyMs);
+	writerOptions.__set_timeoutMs(timeoutMs);
+	writerOptions.__set_threads(numThreads);
+
+	this->client = proxyClient;
+	
+	this->tableName = tableName;
+	this->login = login;
+	
+	void createWriter(std::string& _return, const std::string& login, const std::string& tableName, const WriterOptions& opts);
+  
+	client.get()->createWriter(writerToken, login, tableName, writerOptions);
+}
+
+void BatchWriter::addMutation(Mutation &mutation) {
+	
+	map<string, vector<ColumnUpdate> > cells;
+
+	vector<ColumnUpdate> *updates = mutation.getUpdates().get();
+    
+	string& rowId = mutation.getRowId();
+	cout << writerToken;
+
+	cells.insert(make_pair(rowId, *updates));
+
+	client.get()->update(writerToken, cells);
+
+	updates.clear();
+}
+
+void BatchWriter::flush() {
+	
+	client->flush(writerToken);
+}
+
+void BatchWriter::close() {
+	client->closeWriter(writerToken);
+}
+
 class Connector {
 	
 	string login;
@@ -23,13 +125,13 @@ class Connector {
 	shared_ptr<TTransport> transport;
 	shared_ptr<TProtocol> protocol;
 
-	AccumuloProxyClient *client;
+	shared_ptr<AccumuloProxyClient> client;
 	
 	public:
 
 		Connector(const string& host, int port, const string& username, const string& password);
-		void createTable(const string& tableName);
-		void createBatchWriter(string &tableName, uint32_t maxMemory, uint32_t latencyMs, uint32_t timeoutMs, uint32_t numThreads);
+		void createTable(string& tableName);
+		BatchWriter createBatchWriter(const string& tableName, int64_t maxMemory, int64_t latencyMs, int64_t timeoutMs, int32_t numThreads);
 		void close();
 	
 };
@@ -51,13 +153,14 @@ Connector::Connector(const string& host, int port, const string& username, const
   	map<string, string> m;
   	m.insert(make_pair(passKey, password));
 	
-	AccumuloProxyClient newClient(protocol);
+	client.reset(new AccumuloProxyClient(protocol));
 	
-	client = &newClient;
-  	client->login(login, username, m);
+  	client.get()->login(login, username, m);
+
+	string tableName("tableName4");
 }
 
-void Connector::createTable(const string& tableName) {
+void Connector::createTable(string& tableName) {
 	client->createTable(login, tableName, true, TimeType::MILLIS);
 }
 
@@ -65,98 +168,13 @@ void Connector::close() {
 	transport->close();
 }
 
-class Mutation {
+BatchWriter Connector::createBatchWriter(const string& tableName, const int64_t maxMemory, 
+	const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads) {
 	
-	string rowId;
-	vector<ColumnUpdate> updates;
-
-	public:
-		Mutation(string &rowId);
-		void put(string& colFam, string& colQual, string& colVis, uint32_t timestamp, string& value);
-		string getRowId();
-		vector<ColumnUpdate> getUpdates();
+	BatchWriter writer(client, login, tableName, maxMemory, latencyMs, timeoutMs, numThreads);
 	
-};
-
-Mutation::Mutation(string& rowId) {
-	this->rowId = rowId;
+	return writer;
 }
-
-void Mutation::put(string& colFam, string& colQual, string& colVis, uint32_t timestamp, string& value) {
-
-	ColumnUpdate cUpdate;
-	cUpdate.__set_colFamily(colFam);
-	cUpdate.__set_colQualifier(colQual);
-	cUpdate.__set_colVisibility(colVis);
-	cUpdate.__set_timestamp(timestamp);
-	cUpdate.__set_value(value);
-	
-	updates.push_back(cUpdate);
-}
-
-string Mutation::getRowId() {
-	return rowId;
-}
-
-vector<ColumnUpdate> Mutation::getUpdates() {
-	return updates;
-}
-
-
-class BatchWriter {
-
-	AccumuloProxyClient *client;
-	string login;
-	string writerToken;
-	string tableName;
-		
-	public:
-		
-		BatchWriter(AccumuloProxyClient *client, string &login, string &tableName,
-				uint32_t maxMemory, uint32_t latencyMs, uint32_t timeoutMs, uint32_t numThreads);
-		void addMutation(Mutation &mutation);
-		void flush();
-		void close(); 
-};
-
-BatchWriter::BatchWriter(AccumuloProxyClient *client, string &login, string &tableName,
-		uint32_t maxMemory, uint32_t latencyMs, uint32_t timeoutMs, uint32_t numThreads) {
-	
-	WriterOptions writerOptions;
-	writerOptions.__set_maxMemory(maxMemory);
-	writerOptions.__set_latencyMs(latencyMs);
-	writerOptions.__set_timeoutMs(timeoutMs);
-	writerOptions.__set_threads(numThreads);
-	
-	this->client = client;
-	this->tableName = tableName;
-	this->login = login;
-
-	client->createWriter(writerToken, login, tableName, writerOptions);
-}
-
-void BatchWriter::addMutation(Mutation &mutation) {
-	
-	map<string, vector<ColumnUpdate> > cells;
-
-	vector<ColumnUpdate> updates = mutation.getUpdates();
-
-	cells.insert(make_pair(mutation.getRowId(), updates));
-	client->update(writerToken, cells);
-	
-	updates.clear();
-}
-
-void BatchWriter::flush() {
-	
-	client->flush(writerToken);
-}
-
-void BatchWriter::close() {
-	client->closeWriter(writerToken);
-}
-
-
 
 
 int main(int argc, char* argv[]) {
@@ -165,49 +183,23 @@ int main(int argc, char* argv[]) {
 		cout << "Enter a hostname and port\n";	
 		return 1;
 	}
+
 	
 	Connector connector(argv[1], atoi(argv[2]), string("root"), string("secret"));
+	BatchWriter writer = connector.createBatchWriter(string("testTable"), 500, 100, 100, 1);
+	Mutation mutation(string("rowid1"));
+	
+	string colFam("colFam");
+	string colQual("colQual");
+	string colVis("");
+	string val("");
+	
+	for(int i = 0; i < 50000; i++) {
+		mutation.put( colFam, colQual, colVis, int64_t(500000), val);
+	}
+	
+	writer.addMutation(mutation);
+	
 	connector.close();
-
-
-
-	//   string tableName("testTable");
-	// 
-	// 
-	//   // client.createTable(login, tableName, true, TimeType::MILLIS);
-	// 
-	// 
-	//   WriterOptions writerOptions;
-	//   writerOptions.__set_maxMemory(5000);
-	//   writerOptions.__set_latencyMs(5000);
-	//   writerOptions.__set_timeoutMs(200000);
-	//   writerOptions.__set_threads(5);
-	// 
-	//   string writer;
-	//   client.createWriter(writer, login, tableName, writerOptions);
-	// 
-	// ColumnUpdate cUpdate;
-	// cUpdate.__set_colFamily(string("colFam"));
-	// cUpdate.__set_colQualifier(string("colQual"));
-	// cUpdate.__set_colVisibility(string(""));
-	// cUpdate.__set_timestamp(5000);
-	// cUpdate.__set_value(string(""));
-	// 
-	//    map<string, vector<ColumnUpdate> > cells;
-	// 
-	//   string rowId("rowId");
-	// 
-	// 
-	//   vector<ColumnUpdate> ud(upArr, upArr + sizeof(upArr) / sizeof(ColumnUpdate));
-	//   
-	//   cells.insert(make_pair(rowId, ud));
-	//   
-	//   for(int i = 0; i < 50000; i++) {
-	//     client.update(writer, cells);
-	//   }
-	// 
-	// 
-	// 
-	//   transport->close();
-  return 0;
+	return 0;
 }

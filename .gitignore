@@ -1,2 +1,5 @@
 *.out
 target/
+*.xcworkspace/
+*.xcodeproj/
+*/project.pbxproj
