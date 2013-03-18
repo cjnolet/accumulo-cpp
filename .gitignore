@@ -3,3 +3,4 @@ target/
 *.xcworkspace/
 *.xcodeproj/
 */project.pbxproj
+output/

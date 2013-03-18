@@ -26,7 +26,7 @@ public:
 	void put(const string& colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value);
 	string getRowId();
 	void clear();
-	shared_ptr<vector<ColumnUpdate> > getUpdates();
+	const shared_ptr<vector<ColumnUpdate> > getUpdates();
 };
 
 class BatchWriter {
@@ -43,6 +43,43 @@ public:
 	void addMutation(Mutation &mutation);
 	void flush(void);
 	void close(void); 
+};
+
+class BatchScannerIterator {
+
+	shared_ptr<AccumuloProxyClient> client;
+	BatchScanOptions options;
+	string login;
+	string scannerToken;
+	string tableName;
+
+public:
+	BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, BatchScanOptions options); 
+	bool hasNext(void);
+	KeyValue next(void);
+	void close();
+};
+
+// TODO: Combine Scanner & BatchScanner into implementations of a class with pluggable options
+class BatchScanner {
+	
+		shared_ptr<AccumuloProxyClient> client;
+
+		vector<ScanColumn> columns;
+		vector<IteratorSetting> iterators;
+
+		BatchScanOptions options;
+		string login;
+		string tableName;
+
+	public:
+		BatchScanner(shared_ptr<AccumuloProxyClient> client, const string& login, const string& tableName, 
+				const set<string> authorizations, int32_t numThreads);
+		BatchScannerIterator iterator(void);
+		void setRanges(const vector<Range> &ranges);
+		void fetchColumn(const string& colFam, const string& colQual);
+		void fetchColumnFamily(const string &colFam);
+		void attachScanIterator(const IteratorSetting &iteratorSetting);
 };
 
 class ScannerIterator {
@@ -77,6 +114,7 @@ public:
 			const set<string> authorizations);
 	ScannerIterator iterator(void);
 	void setRange(const Range &range);
+	void setRange(Range *range);
 	void fetchColumn(const string& colFam, const string& colQual);
 	void fetchColumnFamily(const string &colFam);
 	void attachScanIterator(const IteratorSetting &iteratorSetting);
@@ -99,6 +137,7 @@ public:
 	void createTable(string& tableName);
 	BatchWriter createBatchWriter(const string& tableName, int64_t maxMemory, int64_t latencyMs, int64_t timeoutMs, int32_t numThreads);
 	Scanner createScanner(const string& tableName, const set<string> authorizations);
+	BatchScanner createBatchScanner(const string& tableName, const set<string> authorizations, const int32_t numThreads);
 	void close();
 	
 };

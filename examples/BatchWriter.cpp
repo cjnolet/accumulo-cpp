@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 	BatchWriter writer = connector.createBatchWriter("testTable", 500, 100, 100, 1);
 
 	Mutation mutation(argv[3]);
-	mutation.put(argv[4], argv[5], argv[6], int64_t(500000), argv[7]);
+	mutation.put(argv[4], argv[5], argv[6], 500000, argv[7]);
 
 	writer.addMutation(mutation);
 	writer.flush();

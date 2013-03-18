@@ -23,7 +23,7 @@ string Mutation::getRowId() {
 	return rowId;
 }
 
-shared_ptr<vector<ColumnUpdate> > Mutation::getUpdates() {
+const shared_ptr<vector<ColumnUpdate> > Mutation::getUpdates() {
 	return updates;
 }
 
@@ -75,6 +75,87 @@ void BatchWriter::close() {
 	client->closeWriter(writerToken);
 }
 
+BatchScannerIterator::BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+				BatchScanOptions options) {
+					
+	this->client = proxyClient;
+	this->options = options;
+	this->tableName = tableName;
+	this->login = login;
+	
+	client.get()->createBatchScanner(scannerToken, login, tableName, options);
+}
+
+bool BatchScannerIterator::hasNext() {
+	
+	return client.get()->hasNext(scannerToken);
+}
+
+KeyValue BatchScannerIterator::next() {
+
+	KeyValueAndPeek kvap;
+	KeyValue kv;
+	
+	if(hasNext()) {
+		client.get()->nextEntry(kvap, scannerToken);
+		kv = kvap.getKeyValue();
+	}
+
+	return kv;
+}
+
+void BatchScannerIterator::close() {
+	client.get()->closeScanner(scannerToken);
+}
+
+BatchScanner::BatchScanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+		const set<string> authorizations, const int32_t numThreads) {
+
+	options.__set_authorizations(authorizations);
+	options.__set_threads(numThreads);
+	options.__set_columns(columns);
+	options.__set_iterators(iterators);
+
+	this->client = proxyClient;
+	this->login = login;
+	this->tableName = tableName;
+}
+
+void BatchScanner::setRanges(const vector<Range> &ranges) {
+	options.__set_ranges(ranges);
+}
+
+BatchScannerIterator BatchScanner::iterator(void) {
+	
+	options.__set_columns(columns);
+	options.__set_iterators(iterators);
+	
+	BatchScannerIterator iterator(client, login, tableName, options);
+	return iterator;
+}
+
+void BatchScanner::fetchColumn(const string& colFamily, const string& colQual) {
+
+	ScanColumn scanColumn;
+	scanColumn.__set_colFamily(colFamily);
+	scanColumn.__set_colQualifier(colQual);
+	
+	columns.push_back(scanColumn);
+}
+
+void BatchScanner::fetchColumnFamily(const string& colFamily) {
+
+	ScanColumn scanColumn;
+	scanColumn.__set_colFamily(colFamily);
+	
+	columns.push_back(scanColumn);
+}
+
+void BatchScanner::attachScanIterator(const IteratorSetting &iteratorSetting) {
+	
+	iterators.push_back(iteratorSetting);
+}
+
 ScannerIterator::ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 				ScanOptions options) {
 					
@@ -123,6 +204,10 @@ Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& logi
 
 void Scanner::setRange(const Range &range) {
 	options.__set_range(range);
+}
+
+void Scanner::setRange(Range *range) {
+	options.__set_range(*range);
 }
 
 ScannerIterator Scanner::iterator(void) {
@@ -196,5 +281,11 @@ BatchWriter Connector::createBatchWriter(const string& tableName, const int64_t 
 Scanner Connector::createScanner(const string& tableName, const set<string> authorizations) {
 	
 	Scanner scanner(client, login, tableName, authorizations);
+	return scanner;
+}
+
+BatchScanner Connector::createBatchScanner(const string& tableName, const set<string> authorizations, const int32_t numThreads) {
+	
+	BatchScanner scanner(client, login, tableName, authorizations, numThreads);
 	return scanner;
 }

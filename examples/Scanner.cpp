@@ -7,17 +7,13 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	
-	Connector connector(argv[1], atoi(argv[2]), string("root"), string("secret"));
+	Connector connector(argv[1], atoi(argv[2]), "root", "secret");
 
 	set<string> auths;
-	auths.insert(string("U"));
+	auths.insert("U");
 	
-	Scanner scanner = connector.createScanner(string("testTable"), auths);
-
-	Key start(argv[3]);
-	Key stop(argv[4]);
-	Range range(start, stop);
-	scanner.setRange(range);
+	Scanner scanner = connector.createScanner("testTable", auths);
+	scanner.setRange(new Range(new Key(argv[3]), new Key(argv[4])));
 	
 	if(argc > 5) {
 		

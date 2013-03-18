@@ -448,6 +448,11 @@ class Range {
 	this->stop = stop;
   }
 
+  Range(Key *start, Key *stop) : startInclusive(0), stopInclusive(0) {
+	this->start = *start;
+	this->stop = *stop;
+  }
+
   virtual ~Range() throw() {}
 
   Key start;
@@ -775,6 +780,14 @@ class BatchScanOptions {
   void __set_threads(const int32_t val) {
     threads = val;
     __isset.threads = true;
+  }
+
+  std::vector<ScanColumn> getColumns() {
+	return columns;
+  }
+
+  std::vector<IteratorSetting> getIterators() {
+	return iterators;
   }
 
   bool operator == (const BatchScanOptions & rhs) const
