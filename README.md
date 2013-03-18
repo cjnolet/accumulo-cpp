@@ -41,10 +41,10 @@ make
 ### BatchWriter Sample
 ```c++
 Connector connector("localhost", 42424, "root", "secret");
-BatchWriter writer = connector.createBatchWriter("testTable", 500, 100, 100, 1);
+BatchWriter writer = connector.createBatchWriter("testTable", 500000, 10000, 10000, 2);
 
 Mutation mutation("rowId");
-mutation.put("colFam", "colQual", "colVis", int64_t(500000), "val");
+mutation.put("colFam", "colQual", "colVis", 500000, "val");
 
 writer.addMutation(mutation);
 writer.flush();
