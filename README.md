@@ -13,6 +13,29 @@ Simple- When I'm running logic in InfoSphere Streams, I'd like to talk to Accumu
 2. The new Accumulo Thrift Proxy server (1.6 included in this codebase)
 3. Thrift C++ library installed (http://thrift.apache.org/docs/install/)
 
+## Quick Start
+
+1. You'll need to run the Accumulo Thrift Proxy server. A jar is packaged with this codebase in order to get this started quickly. Locate the server/proxy.properties file and fill in the necessary fields. When you are done, start up the server by running the following:
+```
+./server/runProxy.sh
+```
+2. Build the example programs:
+```
+make
+```
+3. Create an example table using the CreateTable example program
+```
+./target/CreateTableExample.o localhost 42424 root secret testTable
+```
+4. Run the BatchWriter example program to insert some rows into Accumulo:
+```
+./target/BatchWriterExample.o localhost 42424 root secret testTable row1 col1 qual6 U val
+```
+5. Run the Scanner example program to read rows from Accumulo:
+```
+./target/ScannerExample.o localhost 42424 root secret testTable A z
+```
+
 ## Code Samples
 
 ### BatchWriter Sample
@@ -36,7 +59,7 @@ connector.close();
 Connector connector("localhost", 42424, "root", "secret");
 
 set<string> auths;
-auths.insert(string("U"));
+auths.insert("U");
 	
 Scanner scanner = connector.createScanner("testTable", auths);
 
@@ -62,3 +85,42 @@ while(itr.hasNext()) {
 itr.close();
 connector.close();
 ```
+
+### BatchScanner Example
+
+```c++
+
+Connector connector("localhost", 42424, "root", "secret");
+
+set<string> auths;
+auths.insert("U");
+	
+BatchScanner scanner = connector.createBatchScanner("testTable", auths, 5);
+	
+// construct ranges
+Range range1(new Key("A"), new Key("Z");
+Range range2(new Key("a"), new Key("z");
+	
+vector<Range> ranges;
+ranges.push_back(range1);
+ranges.push_back(range2);
+	
+scanner.setRanges(ranges);
+scanner.fetchColumn("department", "1");
+	
+BatchScannerIterator itr = scanner.iterator();
+	
+while(itr.hasNext()) {
+
+	KeyValue kv = itr.next();
+
+	cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
+		 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
+		 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+
+}
+	
+itr.close();
+connector.close();
+```
+
