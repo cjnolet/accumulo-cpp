@@ -2,31 +2,31 @@
 
 int main(int argc, char* argv[]) {
 
-	if(argc < 5 || argc > 7) {
-		cout << "Usage: " << argv[0] << " <host> <port> <startRowId> <stopRowId> <colFam> <colQual>\n";	
+	if(argc < 8 || argc > 10) {
+		cout << "Usage: " << argv[0] << " <host> <port> <tableName> <username> <password> <startRowId> <stopRowId> <colFam> <colQual>\n";	
 		return 1;
 	}
 	
-	Connector connector(argv[1], atoi(argv[2]), "root", "secret");
+	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
 	set<string> auths;
 	auths.insert("U");
 	
-	Scanner scanner = connector.createScanner("testTable", auths);
-	scanner.setRange(new Range(new Key(argv[3]), new Key(argv[4])));
+	Scanner scanner = connector.createScanner(argv[5], auths);
+	scanner.setRange(new Range(new Key(argv[6]), new Key(argv[7])));
 	
-	if(argc > 5) {
+	if(argc > 8) {
 		
-		string colFam(argv[5]);
+		string colFam(argv[8]);
 		
-		if(argc == 6) {
+		if(argc == 9) {
 			
 			scanner.fetchColumnFamily(colFam);
 		}
 		
-		else if(argc == 7) {
+		else if(argc == 10) {
 			
-			string colQual(argv[6]);
+			string colQual(argv[9]);
 			scanner.fetchColumn(colFam, colQual);
 		}
 	}

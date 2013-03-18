@@ -2,16 +2,16 @@
 
 int main(int argc, char* argv[]) {
 
-	if(argc != 8) {
-		cout << "Usage: " << argv[0] << " <host> <port> <rowId> <colFam> <colQual> <colVis> <val>\n";	
+	if(argc != 11) {
+		cout << "Usage: " << argv[0] << " <host> <port> <username> <password> <tableName> <rowId> <colFam> <colQual> <colVis> <val>\n";	
 		return 1;
 	}
 
-	Connector connector(argv[1], atoi(argv[2]), "root", "secret");
-	BatchWriter writer = connector.createBatchWriter("testTable", 500, 100, 100, 1);
+	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
+	BatchWriter writer = connector.createBatchWriter(argv[5], 5000, 10000, 10000, 2);
 
-	Mutation mutation(argv[3]);
-	mutation.put(argv[4], argv[5], argv[6], 500000, argv[7]);
+	Mutation mutation(argv[6]);
+	mutation.put(argv[7], argv[8], argv[9], 500000, argv[10]);
 
 	writer.addMutation(mutation);
 	writer.flush();

@@ -134,7 +134,7 @@ class Connector {
 public:
 
 	Connector(const string& host, int port, const string& username, const string& password);
-	void createTable(string& tableName);
+	void createTable(const string& tableName);
 	BatchWriter createBatchWriter(const string& tableName, int64_t maxMemory, int64_t latencyMs, int64_t timeoutMs, int32_t numThreads);
 	Scanner createScanner(const string& tableName, const set<string> authorizations);
 	BatchScanner createBatchScanner(const string& tableName, const set<string> authorizations, const int32_t numThreads);

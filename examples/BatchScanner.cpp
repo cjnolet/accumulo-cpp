@@ -2,21 +2,21 @@
 
 int main(int argc, char* argv[]) {
 
-	if(argc < 7 || argc > 9) {
-		cout << "Usage: " << argv[0] << " <host> <port> <startRowId1> <stopRowId1> <startRowId2> <stopRowId2> <colFam> <colQual>\n";	
+	if(argc < 10 || argc > 12) {
+		cout << "Usage: " << argv[0] << " <host> <port> <username> <password> <testTable> <startRowId1> <stopRowId1> <startRowId2> <stopRowId2> <colFam> <colQual>\n";	
 		return 1;
 	}
 	
-	Connector connector(argv[1], atoi(argv[2]), "root", "secret");
+	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
 	set<string> auths;
 	auths.insert("U");
 	
-	BatchScanner scanner = connector.createBatchScanner("testTable", auths, 5);
+	BatchScanner scanner = connector.createBatchScanner(argv[5], auths, 5);
 	
 	// construct ranges
-	Range range1(new Key(argv[3]), new Key(argv[4]));
-	Range range2(new Key(argv[5]), new Key(argv[6]));
+	Range range1(new Key(argv[6]), new Key(argv[7]));
+	Range range2(new Key(argv[8]), new Key(argv[9]));
 	
 	vector<Range> ranges;
 	ranges.push_back(range1);
@@ -24,16 +24,16 @@ int main(int argc, char* argv[]) {
 	
 	scanner.setRanges(ranges);
 	
-	if(argc > 7) {
+	if(argc > 10) {
 		
-		if(argc == 8) {
+		if(argc == 11) {
 			
-			scanner.fetchColumnFamily(argv[7]);
+			scanner.fetchColumnFamily(argv[10]);
 		}
 		
-		else if(argc == 9) {
+		else if(argc == 12) {
 
-			scanner.fetchColumn(argv[7], argv[8]);
+			scanner.fetchColumn(argv[10], argv[11]);
 		}
 	}
 	

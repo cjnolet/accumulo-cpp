@@ -263,7 +263,7 @@ Connector::Connector(const string& host, int port, const string& username, const
   	client.get()->login(login, username, m);
 }
 
-void Connector::createTable(string& tableName) {
+void Connector::createTable(const string& tableName) {
 	client->createTable(login, tableName, true, TimeType::MILLIS);
 }
 
