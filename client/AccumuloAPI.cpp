@@ -285,7 +285,7 @@ Connector::Connector(const string& host, int port, const string& username, const
 	
   	client.get()->login(login, username, m);
 
-	_tableOperations = new TableOperations(client, login);
+	_tableOperations = new TableOperations(client, loging);
 }
 
 void Connector::close() {

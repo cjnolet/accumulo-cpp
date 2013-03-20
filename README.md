@@ -38,6 +38,13 @@ make
 
 ## Code Samples
 
+### CreateTable Sample
+```c++
+Connector connector("localhost", 42424, "root", "secret");
+connector.tableOperations().createTable("testTable");
+connector.close();
+```
+
 ### BatchWriter Sample
 ```c++
 Connector connector("localhost", 42424, "root", "secret");
@@ -58,9 +65,7 @@ connector.close();
 ```c++
 Connector connector("localhost", 42424, "root", "secret");
 
-set<string> auths;
-auths.insert("U");
-	
+Authorizations auths("A,B");
 Scanner scanner = connector.createScanner("testTable", auths);
 
 // Set up the range
@@ -92,9 +97,7 @@ connector.close();
 
 Connector connector("localhost", 42424, "root", "secret");
 
-set<string> auths;
-auths.insert("U");
-	
+Authorizations auths("A,B");	
 BatchScanner scanner = connector.createBatchScanner("testTable", auths, 5);
 	
 // construct ranges
