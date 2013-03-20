@@ -1,3 +1,4 @@
+#include <ctime>
 #include "../client/AccumuloAPI.h"
 
 int main(int argc, char* argv[]) {
@@ -10,8 +11,12 @@ int main(int argc, char* argv[]) {
 	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 	BatchWriter writer = connector.createBatchWriter(argv[5], 5000, 10000, 10000, 2);
 
+		
+	const long double sysTime = time(0)*1000;
+
+
 	Mutation mutation(argv[6]);
-	mutation.put(argv[7], argv[8], argv[9], 500000, argv[10]);
+	mutation.put(argv[7], argv[8], argv[9], sysTime, argv[10]);
 
 	writer.addMutation(mutation);
 	writer.flush();

@@ -1329,6 +1329,10 @@ class UnknownScanner : public ::apache::thrift::TException {
     msg = val;
   }
 
+  std::string getMsg() {
+	return msg;
+  }
+
   bool operator == (const UnknownScanner & rhs) const
   {
     if (!(msg == rhs.msg))
@@ -1415,6 +1419,10 @@ class NoMoreEntriesException : public ::apache::thrift::TException {
     msg = val;
   }
 
+  std::string getMsg() {
+	return msg;
+  }
+
   bool operator == (const NoMoreEntriesException & rhs) const
   {
     if (!(msg == rhs.msg))
@@ -1458,6 +1466,11 @@ class AccumuloException : public ::apache::thrift::TException {
     msg = val;
   }
 
+  std::string getMsg() {
+	return msg;
+  }
+
+
   bool operator == (const AccumuloException & rhs) const
   {
     if (!(msg == rhs.msg))
@@ -1499,6 +1512,10 @@ class AccumuloSecurityException : public ::apache::thrift::TException {
 
   void __set_msg(const std::string& val) {
     msg = val;
+  }
+
+  std::string getMsg() {
+	return msg;
   }
 
   bool operator == (const AccumuloSecurityException & rhs) const
@@ -1544,6 +1561,10 @@ class TableNotFoundException : public ::apache::thrift::TException {
     msg = val;
   }
 
+  std::string getMsg() {
+	return msg;
+  }
+
   bool operator == (const TableNotFoundException & rhs) const
   {
     if (!(msg == rhs.msg))
@@ -1585,6 +1606,10 @@ class TableExistsException : public ::apache::thrift::TException {
 
   void __set_msg(const std::string& val) {
     msg = val;
+  }
+
+  std::string getMsg() {
+	return msg;
   }
 
   bool operator == (const TableExistsException & rhs) const

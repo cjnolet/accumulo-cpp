@@ -20,7 +20,7 @@ public:
 	void addSplits(const string &tableName, const set<string> &splits);
 	void compactTable(string &tableName, string &startRow, string &endRow, const vector<IteratorSetting> &iterators, 
 		const bool flush, const bool wait);
-	void cancelCompaction(const std::string& tableName);
+	void cancelCompaction(const string& tableName);
 };
 
 #endif

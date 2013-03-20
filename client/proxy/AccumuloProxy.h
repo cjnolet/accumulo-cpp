@@ -8667,10 +8667,11 @@ class AccumuloProxy_createBatchScanner_pargs {
 };
 
 typedef struct _AccumuloProxy_createBatchScanner_result__isset {
-  _AccumuloProxy_createBatchScanner_result__isset() : success(false), ouch1(false), ouch2(false) {}
+  _AccumuloProxy_createBatchScanner_result__isset() : success(false), ouch1(false), ouch2(false), ouch3(false) {}
   bool success;
   bool ouch1;
   bool ouch2;
+  bool ouch3;
 } _AccumuloProxy_createBatchScanner_result__isset;
 
 class AccumuloProxy_createBatchScanner_result {
@@ -8684,6 +8685,7 @@ class AccumuloProxy_createBatchScanner_result {
   std::string success;
   AccumuloException ouch1;
   AccumuloSecurityException ouch2;
+  TableNotFoundException ouch3;
 
   _AccumuloProxy_createBatchScanner_result__isset __isset;
 
@@ -8699,6 +8701,10 @@ class AccumuloProxy_createBatchScanner_result {
     ouch2 = val;
   }
 
+  void __set_ouch3(const TableNotFoundException& val) {
+    ouch3 = val;
+  }
+
   bool operator == (const AccumuloProxy_createBatchScanner_result & rhs) const
   {
     if (!(success == rhs.success))
@@ -8706,6 +8712,8 @@ class AccumuloProxy_createBatchScanner_result {
     if (!(ouch1 == rhs.ouch1))
       return false;
     if (!(ouch2 == rhs.ouch2))
+      return false;
+    if (!(ouch3 == rhs.ouch3))
       return false;
     return true;
   }
@@ -8721,10 +8729,11 @@ class AccumuloProxy_createBatchScanner_result {
 };
 
 typedef struct _AccumuloProxy_createBatchScanner_presult__isset {
-  _AccumuloProxy_createBatchScanner_presult__isset() : success(false), ouch1(false), ouch2(false) {}
+  _AccumuloProxy_createBatchScanner_presult__isset() : success(false), ouch1(false), ouch2(false), ouch3(false) {}
   bool success;
   bool ouch1;
   bool ouch2;
+  bool ouch3;
 } _AccumuloProxy_createBatchScanner_presult__isset;
 
 class AccumuloProxy_createBatchScanner_presult {
@@ -8736,6 +8745,7 @@ class AccumuloProxy_createBatchScanner_presult {
   std::string* success;
   AccumuloException ouch1;
   AccumuloSecurityException ouch2;
+  TableNotFoundException ouch3;
 
   _AccumuloProxy_createBatchScanner_presult__isset __isset;
 
@@ -8813,10 +8823,11 @@ class AccumuloProxy_createScanner_pargs {
 };
 
 typedef struct _AccumuloProxy_createScanner_result__isset {
-  _AccumuloProxy_createScanner_result__isset() : success(false), ouch1(false), ouch2(false) {}
+  _AccumuloProxy_createScanner_result__isset() : success(false), ouch1(false), ouch2(false), ouch3(false) {}
   bool success;
   bool ouch1;
   bool ouch2;
+  bool ouch3;
 } _AccumuloProxy_createScanner_result__isset;
 
 class AccumuloProxy_createScanner_result {
@@ -8830,6 +8841,7 @@ class AccumuloProxy_createScanner_result {
   std::string success;
   AccumuloException ouch1;
   AccumuloSecurityException ouch2;
+  TableNotFoundException ouch3;
 
   _AccumuloProxy_createScanner_result__isset __isset;
 
@@ -8845,6 +8857,10 @@ class AccumuloProxy_createScanner_result {
     ouch2 = val;
   }
 
+  void __set_ouch3(const TableNotFoundException& val) {
+    ouch3 = val;
+  }
+
   bool operator == (const AccumuloProxy_createScanner_result & rhs) const
   {
     if (!(success == rhs.success))
@@ -8852,6 +8868,8 @@ class AccumuloProxy_createScanner_result {
     if (!(ouch1 == rhs.ouch1))
       return false;
     if (!(ouch2 == rhs.ouch2))
+      return false;
+    if (!(ouch3 == rhs.ouch3))
       return false;
     return true;
   }
@@ -8867,10 +8885,11 @@ class AccumuloProxy_createScanner_result {
 };
 
 typedef struct _AccumuloProxy_createScanner_presult__isset {
-  _AccumuloProxy_createScanner_presult__isset() : success(false), ouch1(false), ouch2(false) {}
+  _AccumuloProxy_createScanner_presult__isset() : success(false), ouch1(false), ouch2(false), ouch3(false) {}
   bool success;
   bool ouch1;
   bool ouch2;
+  bool ouch3;
 } _AccumuloProxy_createScanner_presult__isset;
 
 class AccumuloProxy_createScanner_presult {
@@ -8882,6 +8901,7 @@ class AccumuloProxy_createScanner_presult {
   std::string* success;
   AccumuloException ouch1;
   AccumuloSecurityException ouch2;
+  TableNotFoundException ouch3;
 
   _AccumuloProxy_createScanner_presult__isset __isset;
 

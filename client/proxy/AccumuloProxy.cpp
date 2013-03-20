@@ -19,6 +19,7 @@ uint32_t AccumuloProxy_login_args::read(::apache::thrift::protocol::TProtocol* i
 
   using ::apache::thrift::protocol::TProtocolException;
 
+
   while (true)
   {
     xfer += iprot->readFieldBegin(fname, ftype, fid);
@@ -14330,6 +14331,14 @@ uint32_t AccumuloProxy_createBatchScanner_result::read(::apache::thrift::protoco
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->ouch3.read(iprot);
+          this->__isset.ouch3 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -14359,6 +14368,10 @@ uint32_t AccumuloProxy_createBatchScanner_result::write(::apache::thrift::protoc
   } else if (this->__isset.ouch2) {
     xfer += oprot->writeFieldBegin("ouch2", ::apache::thrift::protocol::T_STRUCT, 2);
     xfer += this->ouch2.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.ouch3) {
+    xfer += oprot->writeFieldBegin("ouch3", ::apache::thrift::protocol::T_STRUCT, 3);
+    xfer += this->ouch3.write(oprot);
     xfer += oprot->writeFieldEnd();
   }
   xfer += oprot->writeFieldStop();
@@ -14406,6 +14419,14 @@ uint32_t AccumuloProxy_createBatchScanner_presult::read(::apache::thrift::protoc
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->ouch2.read(iprot);
           this->__isset.ouch2 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->ouch3.read(iprot);
+          this->__isset.ouch3 = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -14564,6 +14585,14 @@ uint32_t AccumuloProxy_createScanner_result::read(::apache::thrift::protocol::TP
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->ouch3.read(iprot);
+          this->__isset.ouch3 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -14593,6 +14622,10 @@ uint32_t AccumuloProxy_createScanner_result::write(::apache::thrift::protocol::T
   } else if (this->__isset.ouch2) {
     xfer += oprot->writeFieldBegin("ouch2", ::apache::thrift::protocol::T_STRUCT, 2);
     xfer += this->ouch2.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.ouch3) {
+    xfer += oprot->writeFieldBegin("ouch3", ::apache::thrift::protocol::T_STRUCT, 3);
+    xfer += this->ouch3.write(oprot);
     xfer += oprot->writeFieldEnd();
   }
   xfer += oprot->writeFieldStop();
@@ -14640,6 +14673,14 @@ uint32_t AccumuloProxy_createScanner_presult::read(::apache::thrift::protocol::T
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->ouch2.read(iprot);
           this->__isset.ouch2 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->ouch3.read(iprot);
+          this->__isset.ouch3 = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -20582,6 +20623,9 @@ void AccumuloProxyClient::recv_createBatchScanner(std::string& _return)
   if (result.__isset.ouch2) {
     throw result.ouch2;
   }
+  if (result.__isset.ouch3) {
+    throw result.ouch3;
+  }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "createBatchScanner failed: unknown result");
 }
 
@@ -20647,6 +20691,9 @@ void AccumuloProxyClient::recv_createScanner(std::string& _return)
   }
   if (result.__isset.ouch2) {
     throw result.ouch2;
+  }
+  if (result.__isset.ouch3) {
+    throw result.ouch3;
   }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "createScanner failed: unknown result");
 }
@@ -21044,7 +21091,7 @@ void AccumuloProxyClient::send_update(const std::string& writer, const std::map<
   args.writer = &writer;
   args.cells = &cells;
   args.write(oprot_);
-  
+
   oprot_->writeMessageEnd();
   oprot_->getTransport()->writeEnd();
   oprot_->getTransport()->flush();
@@ -24826,6 +24873,9 @@ void AccumuloProxyProcessor::process_createBatchScanner(int32_t seqid, ::apache:
   } catch (AccumuloSecurityException &ouch2) {
     result.ouch2 = ouch2;
     result.__isset.ouch2 = true;
+  } catch (TableNotFoundException &ouch3) {
+    result.ouch3 = ouch3;
+    result.__isset.ouch3 = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
       this->eventHandler_->handlerError(ctx, "AccumuloProxy.createBatchScanner");
@@ -24886,6 +24936,9 @@ void AccumuloProxyProcessor::process_createScanner(int32_t seqid, ::apache::thri
   } catch (AccumuloSecurityException &ouch2) {
     result.ouch2 = ouch2;
     result.__isset.ouch2 = true;
+  } catch (TableNotFoundException &ouch3) {
+    result.ouch3 = ouch3;
+    result.__isset.ouch3 = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
       this->eventHandler_->handlerError(ctx, "AccumuloProxy.createScanner");
