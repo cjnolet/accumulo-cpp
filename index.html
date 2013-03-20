@@ -28,7 +28,11 @@
         </ul>
       </header>
       <section>
-        <h2>Why a C++ Library for Accumulo?</h2>
+        <h1>Accumulo++</h1>
+
+<p>A C++ library for Apache Accumulo</p>
+
+<h2>Why a C++ Library for Accumulo?</h2>
 
 <p>Simple- When I'm running logic in InfoSphere Streams, I'd like to talk to Accumulo in C/C++. If I'm running code that needs to utilize CUDA and the GPU, I'd like to stay in C/C++ also. In Accumulo 1.5, we were given an Apache Thrift-based proxy that allows us to generate clients in differing languages. This is one such client which has been augmented to look as close as possible to the Java-based API that we've all come to know and love.</p>
 
@@ -68,6 +72,13 @@ make
 </li>
 </ol><h2>Code Samples</h2>
 
+<h3>CreateTable Sample</h3>
+
+<div class="highlight"><pre><span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
+<span class="n">connector</span><span class="p">.</span><span class="n">tableOperations</span><span class="p">().</span><span class="n">createTable</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">);</span>
+<span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+</pre></div>
+
 <h3>BatchWriter Sample</h3>
 
 <div class="highlight"><pre><span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
@@ -87,9 +98,7 @@ make
 
 <div class="highlight"><pre><span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
 
-<span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">auths</span><span class="p">;</span>
-<span class="n">auths</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">"U"</span><span class="p">);</span>
-
+<span class="n">Authorizations</span> <span class="nf">auths</span><span class="p">(</span><span class="s">"A,B"</span><span class="p">);</span>
 <span class="n">Scanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createScanner</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="n">auths</span><span class="p">);</span>
 
 <span class="c1">// Set up the range</span>
@@ -120,9 +129,7 @@ make
 <div class="highlight"><pre>
 <span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
 
-<span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">auths</span><span class="p">;</span>
-<span class="n">auths</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">"U"</span><span class="p">);</span>
-
+<span class="n">Authorizations</span> <span class="nf">auths</span><span class="p">(</span><span class="s">"A,B"</span><span class="p">);</span>    
 <span class="n">BatchScanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createBatchScanner</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="n">auths</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
 
 <span class="c1">// construct ranges</span>
