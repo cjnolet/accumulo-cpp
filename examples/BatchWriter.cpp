@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 	Mutation mutation(argv[6]);
 	mutation.put(argv[7], argv[8], argv[9], 500000, argv[10]);
 
-	writer.addMutation(*mutation);
+	writer.addMutation(mutation);
 	writer.flush();
 	writer.close();
 	

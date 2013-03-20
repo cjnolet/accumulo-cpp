@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
 	Authorizations auths("A,B");
-	BatchScanner scanner = connector->createBatchScanner(argv[5], auths, 5);
+	BatchScanner scanner = connector.createBatchScanner(argv[5], auths, 5);
 	
 	// construct ranges
 	Range range1(new Key(argv[6]), new Key(argv[7]));
