@@ -38,92 +38,131 @@ make
 
 ## Code Samples
 
-### CreateTable Sample
+### TableOperations Sample
 ```c++
-Connector connector("localhost", 42424, "root", "secret");
-connector.tableOperations().createTable("testTable");
-connector.close();
+
+try {
+	Conector connector("localhost", 42424, "root", "secret");
+	connector.tableOperations().createTable("testTable");
+	connector.tableOperations().compactTable("testTable");
+	connector.close();
+
+} catch(AccumuloSecurityException &e) {
+	cout << "There was a problem with the given credentials.\n";
+
+} catch(TableNotFoundException &e) {
+	cout << "The specified table was not found.\n";
+}
+
 ```
 
 ### BatchWriter Sample
 ```c++
-Connector connector("localhost", 42424, "root", "secret");
-BatchWriter writer = connector.createBatchWriter("testTable", 500000, 10000, 10000, 2);
 
-Mutation mutation("rowId");
-mutation.put("colFam", "colQual", "colVis", 500000, "val");
+try {
+	Connector connector("localhost", 42424, "root", "secret");
+	BatchWriter writer = connector.createBatchWriter("testTable", 500000, 10000, 10000, 2);
 
-writer.addMutation(mutation);
-writer.flush();
-writer.close();
+	Mutation mutation("rowId");
+	mutation.put("colFam", "colQual", "colVis", 500000, "val");
+
+	writer.addMutation(mutation);
+	writer.flush();
+	writer.close();
 	
-connector.close();
+	connector.close();
+
+} catch(AccumuloSecurityException &e) {
+	cout << "There was a problem with the given credentials.\n";
+
+} catch(TException &e) {
+	cout << "An error occurred: the mutation was not written to the table.\n";
+}
 ```  
 
 ### Scanner Sample
 
 ```c++
-Connector connector("localhost", 42424, "root", "secret");
 
-Authorizations auths("A,B");
-Scanner scanner = connector.createScanner("testTable", auths);
 
-// Set up the range
-Key start("A");
-Key stop("z");
-Range range(start, stop);
+try {
+	Connector connector("localhost", 42424, "root", "secret");
 
-scanner.setRange(range);
-scanner.fetchColumn("department", "1");
+	Authorizations auths("A,B");
+	Scanner scanner = connector.createScanner("testTable", auths);
 
-ScannerIterator itr = scanner.iterator();
+	// Set up the range
+	Key start("A");
+	Key stop("z");
+	Range range(start, stop);
+
+	scanner.setRange(range);
+	scanner.fetchColumn("department", "1");
+
+	ScannerIterator itr = scanner.iterator();
 	
-while(itr.hasNext()) {
-	KeyValue kv = itr.next();
+	while(itr.hasNext()) {
+		KeyValue kv = itr.next();
 
-	cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
-			 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
-			 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
+				 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
+				 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
 
+	}
+	
+	itr.close();
+	connector.close();
+
+} catch(AccumuloSecurityException &e) {
+	cout << "There was a problem with the given credentials.\n";
+
+} catch(TableNotFoundException &e) {
+	cout << "The specified table was not found.\n";
 }
-	
-itr.close();
-connector.close();
+
 ```
 
 ### BatchScanner Example
 
 ```c++
 
-Connector connector("localhost", 42424, "root", "secret");
+try {
+	Connector connector("localhost", 42424, "root", "secret");
 
-Authorizations auths("A,B");	
-BatchScanner scanner = connector.createBatchScanner("testTable", auths, 5);
+	Authorizations auths("A,B");	
+	BatchScanner scanner = connector.createBatchScanner("testTable", auths, 5);
 	
-// construct ranges
-Range range1(new Key("A"), new Key("Z");
-Range range2(new Key("a"), new Key("z");
+	// construct ranges
+	Range range1(new Key("A"), new Key("Z");
+	Range range2(new Key("a"), new Key("z");
 	
-vector<Range> ranges;
-ranges.push_back(range1);
-ranges.push_back(range2);
+	vector<Range> ranges;
+	ranges.push_back(range1);
+	ranges.push_back(range2);
 	
-scanner.setRanges(ranges);
-scanner.fetchColumn("department", "1");
+	scanner.setRanges(ranges);
+	scanner.fetchColumn("department", "1");
 	
-BatchScannerIterator itr = scanner.iterator();
+	BatchScannerIterator itr = scanner.iterator();
 	
-while(itr.hasNext()) {
+	while(itr.hasNext()) {
 
-	KeyValue kv = itr.next();
+		KeyValue kv = itr.next();
 
-	cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
-		 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
-		 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
+			 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
+			 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
 
+	}
+	
+	itr.close();
+	connector.close();
+	
+} catch(AccumuloSecurityException &e) {
+	cout << "There was a problem with the given credentials.\n";
+
+} catch(TableNotFoundException &e) {
+	cout << "The specified table was not found.\n";
 }
-	
-itr.close();
-connector.close();
 ```
 
