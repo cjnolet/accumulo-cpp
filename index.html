@@ -72,91 +72,130 @@ make
 </li>
 </ol><h2>Code Samples</h2>
 
-<h3>CreateTable Sample</h3>
+<h3>TableOperations Sample</h3>
 
-<div class="highlight"><pre><span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
-<span class="n">connector</span><span class="p">.</span><span class="n">tableOperations</span><span class="p">().</span><span class="n">createTable</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">);</span>
-<span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<div class="highlight"><pre>
+<span class="n">try</span> <span class="p">{</span>
+    <span class="n">Conector</span> <span class="n">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
+    <span class="n">connector</span><span class="p">.</span><span class="n">tableOperations</span><span class="p">().</span><span class="n">createTable</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">);</span>
+    <span class="n">connector</span><span class="p">.</span><span class="n">tableOperations</span><span class="p">().</span><span class="n">compactTable</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">);</span>
+    <span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">AccumuloSecurityException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"There was a problem with the given credentials.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">TableNotFoundException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The specified table was not found.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
 </pre></div>
 
 <h3>BatchWriter Sample</h3>
 
-<div class="highlight"><pre><span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
-<span class="n">BatchWriter</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createBatchWriter</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="mi">500000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<div class="highlight"><pre>
+<span class="n">try</span> <span class="p">{</span>
+    <span class="n">Connector</span> <span class="n">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
+    <span class="n">BatchWriter</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createBatchWriter</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="mi">500000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
 
-<span class="n">Mutation</span> <span class="nf">mutation</span><span class="p">(</span><span class="s">"rowId"</span><span class="p">);</span>
-<span class="n">mutation</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="s">"colFam"</span><span class="p">,</span> <span class="s">"colQual"</span><span class="p">,</span> <span class="s">"colVis"</span><span class="p">,</span> <span class="mi">500000</span><span class="p">,</span> <span class="s">"val"</span><span class="p">);</span>
+    <span class="n">Mutation</span> <span class="nf">mutation</span><span class="p">(</span><span class="s">"rowId"</span><span class="p">);</span>
+    <span class="n">mutation</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="s">"colFam"</span><span class="p">,</span> <span class="s">"colQual"</span><span class="p">,</span> <span class="s">"colVis"</span><span class="p">,</span> <span class="mi">500000</span><span class="p">,</span> <span class="s">"val"</span><span class="p">);</span>
 
-<span class="n">writer</span><span class="p">.</span><span class="n">addMutation</span><span class="p">(</span><span class="n">mutation</span><span class="p">);</span>
-<span class="n">writer</span><span class="p">.</span><span class="n">flush</span><span class="p">();</span>
-<span class="n">writer</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">writer</span><span class="p">.</span><span class="n">addMutation</span><span class="p">(</span><span class="n">mutation</span><span class="p">);</span>
+    <span class="n">writer</span><span class="p">.</span><span class="n">flush</span><span class="p">();</span>
+    <span class="n">writer</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
 
-<span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">AccumuloSecurityException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"There was a problem with the given credentials.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">TException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"An error occurred: the mutation was not written to the table.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 
 <h3>Scanner Sample</h3>
 
-<div class="highlight"><pre><span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
+<div class="highlight"><pre>
 
-<span class="n">Authorizations</span> <span class="nf">auths</span><span class="p">(</span><span class="s">"A,B"</span><span class="p">);</span>
-<span class="n">Scanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createScanner</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="n">auths</span><span class="p">);</span>
+<span class="n">try</span> <span class="p">{</span>
+    <span class="n">Connector</span> <span class="n">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
 
-<span class="c1">// Set up the range</span>
-<span class="n">Key</span> <span class="nf">start</span><span class="p">(</span><span class="s">"A"</span><span class="p">);</span>
-<span class="n">Key</span> <span class="nf">stop</span><span class="p">(</span><span class="s">"z"</span><span class="p">);</span>
-<span class="n">Range</span> <span class="nf">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">);</span>
+    <span class="n">Authorizations</span> <span class="nf">auths</span><span class="p">(</span><span class="s">"A,B"</span><span class="p">);</span>
+    <span class="n">Scanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createScanner</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="n">auths</span><span class="p">);</span>
 
-<span class="n">scanner</span><span class="p">.</span><span class="n">setRange</span><span class="p">(</span><span class="n">range</span><span class="p">);</span>
-<span class="n">scanner</span><span class="p">.</span><span class="n">fetchColumn</span><span class="p">(</span><span class="s">"department"</span><span class="p">,</span> <span class="s">"1"</span><span class="p">);</span>
+    <span class="c1">// Set up the range</span>
+    <span class="n">Key</span> <span class="nf">start</span><span class="p">(</span><span class="s">"A"</span><span class="p">);</span>
+    <span class="n">Key</span> <span class="nf">stop</span><span class="p">(</span><span class="s">"z"</span><span class="p">);</span>
+    <span class="n">Range</span> <span class="nf">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">);</span>
 
-<span class="n">ScannerIterator</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">scanner</span><span class="p">.</span><span class="n">iterator</span><span class="p">();</span>
+    <span class="n">scanner</span><span class="p">.</span><span class="n">setRange</span><span class="p">(</span><span class="n">range</span><span class="p">);</span>
+    <span class="n">scanner</span><span class="p">.</span><span class="n">fetchColumn</span><span class="p">(</span><span class="s">"department"</span><span class="p">,</span> <span class="s">"1"</span><span class="p">);</span>
 
-<span class="k">while</span><span class="p">(</span><span class="n">itr</span><span class="p">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
-    <span class="n">KeyValue</span> <span class="n">kv</span> <span class="o">=</span> <span class="n">itr</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
+    <span class="n">ScannerIterator</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">scanner</span><span class="p">.</span><span class="n">iterator</span><span class="p">();</span>
 
-    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getRow</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColFamily</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">":"</span> 
-             <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColQualifier</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" ["</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColVisibility</span><span class="p">()</span> 
-             <span class="o">&lt;&lt;</span> <span class="s">"] "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getTimestamp</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\t</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">itr</span><span class="p">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">KeyValue</span> <span class="n">kv</span> <span class="o">=</span> <span class="n">itr</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
 
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getRow</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColFamily</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">":"</span> 
+                 <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColQualifier</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" ["</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColVisibility</span><span class="p">()</span> 
+                 <span class="o">&lt;&lt;</span> <span class="s">"] "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getTimestamp</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\t</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="p">}</span>
+
+    <span class="n">itr</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">AccumuloSecurityException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"There was a problem with the given credentials.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">TableNotFoundException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The specified table was not found.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="n">itr</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
-<span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
 </pre></div>
 
 <h3>BatchScanner Example</h3>
 
 <div class="highlight"><pre>
-<span class="n">Connector</span> <span class="nf">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
+<span class="n">try</span> <span class="p">{</span>
+    <span class="n">Connector</span> <span class="n">connector</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="mi">42424</span><span class="p">,</span> <span class="s">"root"</span><span class="p">,</span> <span class="s">"secret"</span><span class="p">);</span>
 
-<span class="n">Authorizations</span> <span class="nf">auths</span><span class="p">(</span><span class="s">"A,B"</span><span class="p">);</span>    
-<span class="n">BatchScanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createBatchScanner</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="n">auths</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="n">Authorizations</span> <span class="nf">auths</span><span class="p">(</span><span class="s">"A,B"</span><span class="p">);</span>    
+    <span class="n">BatchScanner</span> <span class="n">scanner</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">createBatchScanner</span><span class="p">(</span><span class="s">"testTable"</span><span class="p">,</span> <span class="n">auths</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
 
-<span class="c1">// construct ranges</span>
-<span class="n">Range</span> <span class="nf">range1</span><span class="p">(</span><span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"A"</span><span class="p">),</span> <span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"Z"</span><span class="p">);</span>
-<span class="n">Range</span> <span class="nf">range2</span><span class="p">(</span><span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"a"</span><span class="p">),</span> <span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"z"</span><span class="p">);</span>
+    <span class="c1">// construct ranges</span>
+    <span class="n">Range</span> <span class="nf">range1</span><span class="p">(</span><span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"A"</span><span class="p">),</span> <span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"Z"</span><span class="p">);</span>
+    <span class="n">Range</span> <span class="nf">range2</span><span class="p">(</span><span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"a"</span><span class="p">),</span> <span class="k">new</span> <span class="n">Key</span><span class="p">(</span><span class="s">"z"</span><span class="p">);</span>
 
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">Range</span><span class="o">&gt;</span> <span class="n">ranges</span><span class="p">;</span>
-<span class="n">ranges</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">range1</span><span class="p">);</span>
-<span class="n">ranges</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">range2</span><span class="p">);</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Range</span><span class="o">&gt;</span> <span class="n">ranges</span><span class="p">;</span>
+    <span class="n">ranges</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">range1</span><span class="p">);</span>
+    <span class="n">ranges</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">range2</span><span class="p">);</span>
 
-<span class="n">scanner</span><span class="p">.</span><span class="n">setRanges</span><span class="p">(</span><span class="n">ranges</span><span class="p">);</span>
-<span class="n">scanner</span><span class="p">.</span><span class="n">fetchColumn</span><span class="p">(</span><span class="s">"department"</span><span class="p">,</span> <span class="s">"1"</span><span class="p">);</span>
+    <span class="n">scanner</span><span class="p">.</span><span class="n">setRanges</span><span class="p">(</span><span class="n">ranges</span><span class="p">);</span>
+    <span class="n">scanner</span><span class="p">.</span><span class="n">fetchColumn</span><span class="p">(</span><span class="s">"department"</span><span class="p">,</span> <span class="s">"1"</span><span class="p">);</span>
 
-<span class="n">BatchScannerIterator</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">scanner</span><span class="p">.</span><span class="n">iterator</span><span class="p">();</span>
+    <span class="n">BatchScannerIterator</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">scanner</span><span class="p">.</span><span class="n">iterator</span><span class="p">();</span>
 
-<span class="k">while</span><span class="p">(</span><span class="n">itr</span><span class="p">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">itr</span><span class="p">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
 
-    <span class="n">KeyValue</span> <span class="n">kv</span> <span class="o">=</span> <span class="n">itr</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
+        <span class="n">KeyValue</span> <span class="n">kv</span> <span class="o">=</span> <span class="n">itr</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
 
-    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getRow</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColFamily</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">":"</span> 
-         <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColQualifier</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" ["</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColVisibility</span><span class="p">()</span> 
-         <span class="o">&lt;&lt;</span> <span class="s">"] "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getTimestamp</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\t</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getRow</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColFamily</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">":"</span> 
+             <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColQualifier</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" ["</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getColVisibility</span><span class="p">()</span> 
+             <span class="o">&lt;&lt;</span> <span class="s">"] "</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getKey</span><span class="p">().</span><span class="n">getTimestamp</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\t</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">kv</span><span class="p">.</span><span class="n">getValue</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
 
+    <span class="p">}</span>
+
+    <span class="n">itr</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">AccumuloSecurityException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"There was a problem with the given credentials.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">TableNotFoundException</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The specified table was not found.</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
 <span class="p">}</span>
-
-<span class="n">itr</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
-<span class="n">connector</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
 </pre></div>
       </section>
       <footer>
