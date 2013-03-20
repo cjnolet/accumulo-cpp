@@ -9,9 +9,7 @@ int main(int argc, char* argv[]) {
 	
 	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
-	set<string> auths;
-	auths.insert("U");
-	
+	Authorizations auths("A,B");
 	BatchScanner scanner = connector.createBatchScanner(argv[5], auths, 5);
 	
 	// construct ranges

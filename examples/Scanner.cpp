@@ -2,16 +2,15 @@
 
 int main(int argc, char* argv[]) {
 
+
 	if(argc < 8 || argc > 10) {
-		cout << "Usage: " << argv[0] << " <host> <port> <tableName> <username> <password> <startRowId> <stopRowId> <colFam> <colQual>\n";	
+		cout << "Usage: " << argv[0] << " <host> <port> <username> <password> <tableName> <startRowId> <stopRowId> <colFam> <colQual>\n";	
 		return 1;
 	}
 	
 	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
-	set<string> auths;
-	auths.insert("U");
-	
+	Authorizations auths("A,B");
 	Scanner scanner = connector.createScanner(argv[5], auths);
 	scanner.setRange(new Range(new Key(argv[6]), new Key(argv[7])));
 	
@@ -35,11 +34,11 @@ int main(int argc, char* argv[]) {
 	
 	while(itr.hasNext()) {
 		KeyValue kv = itr.next();
-
+	
 		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
 			 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
 			 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
-
+	
 	}
 	
 	itr.close();
