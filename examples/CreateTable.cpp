@@ -8,8 +8,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
-
-	connector.createTable(argv[5]);
+	connector.tableOperations().createTable(argv[5]);
 	connector.close();
 	
 	return 0;

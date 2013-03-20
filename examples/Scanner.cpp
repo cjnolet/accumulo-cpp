@@ -12,21 +12,21 @@ int main(int argc, char* argv[]) {
 
 	Authorizations auths("A,B");
 	Scanner scanner = connector.createScanner(argv[5], auths);
-	scanner.setRange(new Range(new Key(argv[6]), new Key(argv[7])));
+	
+	Range range(new Key(argv[6]), new Key(argv[7]));
+	
+	scanner.setRange(range);
 	
 	if(argc > 8) {
 		
-		string colFam(argv[8]);
-		
 		if(argc == 9) {
 			
-			scanner.fetchColumnFamily(colFam);
+			scanner.fetchColumnFamily(argv[8]);
 		}
 		
 		else if(argc == 10) {
 			
-			string colQual(argv[9]);
-			scanner.fetchColumn(colFam, colQual);
+			scanner.fetchColumn(argv[8], argv[9]);
 		}
 	}
 	

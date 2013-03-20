@@ -4,6 +4,7 @@
 #include <transport/TBufferTransports.h>
 #include <protocol/TCompactProtocol.h>
 #include "proxy/AccumuloProxy.h"
+#include "api/TableOperations.h"
 
 #ifndef ACCUMULO_API_H
 #define ACCUMULO_API_H
@@ -17,19 +18,19 @@ using namespace boost;
 
 class Authorizations {
 	
-	set<string> *authsVector;
+	set<string> authsVector;
 	
 public:
 	
 	Authorizations(const string &auths);
 	~Authorizations();
-	set<string> *getAuthorizations() const;
+	const set<string> getAuthorizations() const;
 };
 
 class Mutation {
 	
 	string rowId;
-	vector<ColumnUpdate> *updates;
+	vector<ColumnUpdate> updates;
 
 public:
 	
@@ -37,7 +38,7 @@ public:
 	~Mutation();
 	void put(const string& colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value);
 	string getRowId() const;
-	const vector<ColumnUpdate> *getUpdates() const;
+	const vector<ColumnUpdate> getUpdates() const;
 	void clear();
 };
 
@@ -67,9 +68,9 @@ class BatchScannerIterator {
 	string tableName;
 
 public:
-	BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, BatchScanOptions options); 
+	BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName, BatchScanOptions &options); 
 	bool hasNext(void);
-	KeyValue next(void);
+	const KeyValue next(void);
 	void close();
 };
 
@@ -78,10 +79,10 @@ class BatchScanner {
 	
 		shared_ptr<AccumuloProxyClient> client;
 
-		vector<ScanColumn> *columns;
-		vector<IteratorSetting> *iterators;
+		vector<ScanColumn> columns;
+		vector<IteratorSetting> iterators;
 
-		BatchScanOptions *options;
+		BatchScanOptions options;
 		string login;
 		string tableName;
 
@@ -104,9 +105,10 @@ class ScannerIterator {
 	string tableName;
 	
 public:
-	ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, ScanOptions options); 
+	ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, 
+					const string& tableName, ScanOptions &options); 
 	bool hasNext(void);
-	KeyValue next(void);
+	const KeyValue next(void);
 	void close();
 	
 };
@@ -127,7 +129,6 @@ public:
 			const Authorizations &authorizations);
 	ScannerIterator iterator(void);
 	void setRange(const Range &range);
-	void setRange(Range *range);
 	void fetchColumn(const string& colFam, const string& colQual);
 	void fetchColumnFamily(const string &colFam);
 	void attachScanIterator(const IteratorSetting &iteratorSetting);
@@ -135,6 +136,8 @@ public:
 
 
 class Connector {
+	
+	TableOperations *_tableOperations;
 	
 	string login;
 	
@@ -147,10 +150,10 @@ class Connector {
 public:
 
 	Connector(const string& host, int port, const string& username, const string& password);
-	void createTable(const string& tableName);
 	BatchWriter createBatchWriter(const string& tableName, int64_t maxMemory, int64_t latencyMs, int64_t timeoutMs, int32_t numThreads);
 	Scanner createScanner(const string& tableName, const Authorizations &authorizations);
 	BatchScanner createBatchScanner(const string& tableName, const Authorizations &authorizations, const int32_t numThreads);
+	TableOperations tableOperations();
 	void close();
 	
 };

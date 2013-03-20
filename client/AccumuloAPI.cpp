@@ -2,37 +2,29 @@
 
 Authorizations::Authorizations(const string& auths) {
 
-	authsVector = new set<string>();
-	
-	//TODO: Verify valid characters before constructing object and throw exception if necessary
-  
   	string::size_type lastPos = auths.find_first_not_of(",", 0);
   	string::size_type pos = auths.find_first_of(",", lastPos);
 
   	while (string::npos != pos || string::npos != lastPos) {
-    	authsVector->insert(auths.substr(lastPos, pos - lastPos));
+    	authsVector.insert(auths.substr(lastPos, pos - lastPos));
     	lastPos = auths.find_first_not_of(",", pos);
     	pos = auths.find_first_of(",", lastPos);
 	}
-	
 }
 
-set<string> *Authorizations::getAuthorizations() const {
+const set<string> Authorizations::getAuthorizations() const {
 	
 	return authsVector;
 }
 
 Authorizations::~Authorizations() {
-	delete authsVector;
 }
 
 Mutation::Mutation(const string &rowId) {
 	this->rowId = rowId;
-	this->updates = new vector<ColumnUpdate>();
 }
 
 Mutation::~Mutation() {
-	delete updates;
 }
 
 void Mutation::put(const string &colFam, const string& colQual, const string& colVis, const int64_t timestamp, const string& value) {
@@ -44,42 +36,40 @@ void Mutation::put(const string &colFam, const string& colQual, const string& co
 	cUpdate.__set_timestamp(timestamp);
 	cUpdate.__set_value(value);
 	
-	updates->push_back(cUpdate);
+	updates.push_back(cUpdate);
 }
 
 string Mutation::getRowId() const {
 	return rowId;
 }
 
-const vector<ColumnUpdate> *Mutation::getUpdates() const {
+const vector<ColumnUpdate> Mutation::getUpdates() const {
 	return updates;
 }
 
 void Mutation::clear() {
 	
-	delete updates;
-	this->updates = new vector<ColumnUpdate>();
+	updates.clear();
 }
+
 
 BatchWriter::BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
 		const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads) {
 	
-	WriterOptions *writerOptions = new WriterOptions();
-	writerOptions->__set_maxMemory(maxMemory);
-	writerOptions->__set_latencyMs(latencyMs);
-	writerOptions->__set_timeoutMs(timeoutMs);
-	writerOptions->__set_threads(numThreads);
+	WriterOptions writerOptions;
+	writerOptions.__set_maxMemory(maxMemory);
+	writerOptions.__set_latencyMs(latencyMs);
+	writerOptions.__set_timeoutMs(timeoutMs);
+	writerOptions.__set_threads(numThreads);
 
 	this->client = proxyClient;
 	
 	this->tableName = tableName;
 	this->login = login;
 	
-	void createWriter(std::string& _return, const std::string& login, const std::string& tableName, const WriterOptions& opts);
+	void createWriter(std::string& _return, const std::string& login, const std::string& tableName, const WriterOptions &opts);
   
-	client.get()->createWriter(writerToken, login, tableName, *writerOptions);
-	
-	delete writerOptions;
+	client.get()->createWriter(writerToken, login, tableName, writerOptions);
 }
 
 BatchWriter::~BatchWriter() {
@@ -89,10 +79,10 @@ void BatchWriter::addMutation(Mutation &mutation) {
 	
 	map<string, vector<ColumnUpdate> > cells;
 
-	const vector<ColumnUpdate> *updates = mutation.getUpdates();
+	const vector<ColumnUpdate> updates = mutation.getUpdates();
 	const string rowId = mutation.getRowId();
 
-	cells.insert(make_pair(rowId, *updates));
+	cells.insert(make_pair(rowId, updates));
 
 	client.get()->update(writerToken, cells);
 	
@@ -108,8 +98,8 @@ void BatchWriter::close() {
 	client->closeWriter(writerToken);
 }
 
-BatchScannerIterator::BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
-				BatchScanOptions options) {
+BatchScannerIterator::BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName, 
+				BatchScanOptions &options) {
 					
 	this->client = proxyClient;
 	this->options = options;
@@ -124,7 +114,7 @@ bool BatchScannerIterator::hasNext() {
 	return client.get()->hasNext(scannerToken);
 }
 
-KeyValue BatchScannerIterator::next() {
+const KeyValue BatchScannerIterator::next() {
 
 	KeyValueAndPeek kvap;
 	KeyValue kv;
@@ -144,12 +134,12 @@ void BatchScannerIterator::close() {
 BatchScanner::BatchScanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 		const Authorizations &authorizations, const int32_t numThreads) {
 
-	set<string> *auths = authorizations.getAuthorizations();
+	set<string> auths = authorizations.getAuthorizations();
 
-	options->__set_authorizations(*auths);
-	options->__set_threads(numThreads);
-	options->__set_columns(*columns);
-	options->__set_iterators(*iterators);
+	options.__set_authorizations(auths);
+	options.__set_threads(numThreads);
+	options.__set_columns(columns);
+	options.__set_iterators(iterators);
 
 	this->client = proxyClient;
 	this->login = login;
@@ -157,42 +147,42 @@ BatchScanner::BatchScanner(shared_ptr<AccumuloProxyClient> proxyClient, const st
 }
 
 void BatchScanner::setRanges(const vector<Range> &ranges) {
-	options->__set_ranges(ranges);
+	options.__set_ranges(ranges);
 }
 
 BatchScannerIterator BatchScanner::iterator(void) {
 	
-	options->__set_columns(*columns);
-	options->__set_iterators(*iterators);
+	options.__set_columns(columns);
+	options.__set_iterators(iterators);
 	
-	BatchScannerIterator iterator(client, login, tableName, *options);
+	BatchScannerIterator iterator(client, login, tableName, options);
 	return iterator;
 }
 
 void BatchScanner::fetchColumn(const string& colFamily, const string& colQual) {
 
-	ScanColumn *scanColumn;
-	scanColumn->__set_colFamily(colFamily);
-	scanColumn->__set_colQualifier(colQual);
+	ScanColumn scanColumn;
+	scanColumn.__set_colFamily(colFamily);
+	scanColumn.__set_colQualifier(colQual);
 	
-	columns->push_back(*scanColumn);
+	columns.push_back(scanColumn);
 }
 
 void BatchScanner::fetchColumnFamily(const string& colFamily) {
 
-	ScanColumn *scanColumn;
-	scanColumn->__set_colFamily(colFamily);
+	ScanColumn scanColumn;
+	scanColumn.__set_colFamily(colFamily);
 	
-	columns->push_back(*scanColumn);
+	columns.push_back(scanColumn);
 }
 
 void BatchScanner::attachScanIterator(const IteratorSetting &iteratorSetting) {
 	
-	iterators->push_back(iteratorSetting);
+	iterators.push_back(iteratorSetting);
 }
 
 ScannerIterator::ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
-				ScanOptions options) {
+				ScanOptions &options) {
 					
 	this->client = proxyClient;
 	this->options = options;
@@ -207,7 +197,7 @@ bool ScannerIterator::hasNext() {
 	return client.get()->hasNext(scannerToken);
 }
 
-KeyValue ScannerIterator::next() {
+const KeyValue ScannerIterator::next() {
 
 	KeyValueAndPeek kvap;
 	KeyValue kv;
@@ -227,9 +217,9 @@ void ScannerIterator::close() {
 Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 		const Authorizations &authorizations) {
 
-	set<string> *auths = authorizations.getAuthorizations();
+	set<string> auths = authorizations.getAuthorizations();
 
-	options.__set_authorizations(*auths);
+	options.__set_authorizations(auths);
 	options.__set_bufferSize(500000);
 	options.__set_columns(columns);
 	options.__set_iterators(iterators);
@@ -241,10 +231,6 @@ Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& logi
 
 void Scanner::setRange(const Range &range) {
 	options.__set_range(range);
-}
-
-void Scanner::setRange(Range *range) {
-	options.__set_range(*range);
 }
 
 ScannerIterator Scanner::iterator(void) {
@@ -298,10 +284,8 @@ Connector::Connector(const string& host, int port, const string& username, const
 	client.reset(new AccumuloProxyClient(protocol));
 	
   	client.get()->login(login, username, m);
-}
 
-void Connector::createTable(const string& tableName) {
-	client->createTable(login, tableName, true, TimeType::MILLIS);
+	_tableOperations = new TableOperations(client, login);
 }
 
 void Connector::close() {
@@ -321,8 +305,12 @@ Scanner Connector::createScanner(const string& tableName, const Authorizations &
 	return scanner;
 }
 
-BatchScanner Connector::createBatchScanner(const string& tableName, const Authorizations &authorizations, const int32_t numThreads) {
+BatchScanner Connector::createBatchScanner(const string &tableName, const Authorizations &authorizations, const int32_t numThreads) {
 	
 	BatchScanner scanner(client, login, tableName, authorizations, numThreads);
 	return scanner;
+}
+
+TableOperations Connector::tableOperations() {
+	return *_tableOperations;
 }
