@@ -17,7 +17,7 @@ Simple- When I'm running logic in InfoSphere Streams, I'd like to talk to Accumu
 
 1. You'll need to run the Accumulo Thrift Proxy server. A jar is packaged with this codebase in order to get this started quickly. Locate the server/proxy.properties file and fill in the necessary fields. When you are done, start up the server by running the following:
 ```
-./server/runProxy.sh
+./server/runProxy.sh 1.5
 ```
 2. Build the example programs:
 ```

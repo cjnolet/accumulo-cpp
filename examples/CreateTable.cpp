@@ -7,9 +7,14 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	
-	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
-	connector.tableOperations().createTable(argv[5]);
-	connector.close();
-	
-	return 0;
+	try {
+		
+		Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
+		connector.tableOperations().createTable(argv[5]);
+		connector.close();
+
+		return 0;
+	} catch(AccumuloSecurityException &e) {
+		cout << "There was a problem with your credentials\n";
+	}
 }
