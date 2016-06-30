@@ -7,17 +7,19 @@ A C++ library for Apache Accumulo
 
 Simple- When I'm running logic in InfoSphere Streams, I'd like to talk to Accumulo in C/C++. If I'm running code that needs to utilize CUDA and the GPU, I'd like to stay in C/C++ also. In Accumulo 1.5, we were given an Apache Thrift-based proxy that allows us to generate clients in differing languages. This is one such client which has been augmented to look as close as possible to the Java-based API that we've all come to know and love.
 
+Original version by cjnoleh, ported to Accumulo 2.7.2 by cybermaggedon.
+
 ## Requirements
 
 1. A running Accumulo cluster
-2. The new Accumulo Thrift Proxy server (1.6 included in this codebase)
+2. The new Accumulo Thrift Proxy server
 3. Thrift C++ library installed (http://thrift.apache.org/docs/install/)
 
 ## Quick Start
 
-1. You'll need to run the Accumulo Thrift Proxy server. A jar is packaged with this codebase in order to get this started quickly. Locate the server/proxy.properties file and fill in the necessary fields. When you are done, start up the server by running the following:
+1. You'll need to run the Accumulo Thrift Proxy server.
 ```
-./server/runProxy.sh 1.5
+${ACCUMULO_HOME}/bin/accumulo proxy -p ${SOME_PLACE}/proxy.properties
 ```
 2. Build the example programs:
 ```
@@ -25,15 +27,15 @@ make
 ```
 3. Create an example table using the CreateTable example program
 ```
-./target/CreateTableExample.o localhost 42424 root secret testTable
+./target/CreateTableExample localhost 42424 root secret testTable
 ```
 4. Run the BatchWriter example program to insert some rows into Accumulo:
 ```
-./target/BatchWriterExample.o localhost 42424 root secret testTable row1 col1 qual6 U val
+./target/BatchWriterExample localhost 42424 root secret testTable row1 col1 qual6 U val
 ```
 5. Run the Scanner example program to read rows from Accumulo:
 ```
-./target/ScannerExample.o localhost 42424 root secret testTable A z
+./target/ScannerExample localhost 42424 root secret testTable A z
 ```
 
 ## Code Samples
@@ -83,42 +85,41 @@ try {
 ### Scanner Sample
 
 ```c++
+	
+    try {
+		
+	Connector connector("localhost", 42424, "user", "password");
 
+	Authorizations auths("");
+	Scanner scanner = connector.createScanner("mytable", auths);
 
-try {
-	Connector connector("localhost", 42424, "root", "secret");
+	Key ks, ke;
+	ks.row = "banana"; ke.row = "chaffinch";
 
-	Authorizations auths("A,B");
-	Scanner scanner = connector.createScanner("testTable", auths);
-
-	// Set up the range
-	Key start("A");
-	Key stop("z");
-	Range range(start, stop);
+	Range range;
+	range.start = ks;
+	range.stop = ke;
 
 	scanner.setRange(range);
-	scanner.fetchColumn("department", "1");
+	scanner.fetchColumnFamily("wingspan");
 
 	ScannerIterator itr = scanner.iterator();
-	
-	while(itr.hasNext()) {
-		KeyValue kv = itr.next();
 
-		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
-				 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
-				 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+	while(itr.hasNext()) {
+	    KeyValue kv = itr.next();
+
+	    cout << kv.key.row << " " << kv.key.colFamily << ":" 
+		 << kv.key.colQualifier << " [" << kv.key.colVisibility
+		 << "] " << kv.key.timestamp << "\t" << kv.value << "\n";
 
 	}
-	
+
 	itr.close();
 	connector.close();
 
-} catch(AccumuloSecurityException &e) {
-	cout << "There was a problem with the given credentials.\n";
-
-} catch(TableNotFoundException &e) {
-	cout << "The specified table was not found.\n";
-}
+    } catch(TableNotFoundException &e) {
+	cout << "The specified table was not found\n";
+    }
 
 ```
 
@@ -126,43 +127,43 @@ try {
 
 ```c++
 
-try {
-	Connector connector("localhost", 42424, "root", "secret");
+    Connector connector("localhost", 42424, "user", "password");
 
-	Authorizations auths("A,B");	
-	BatchScanner scanner = connector.createBatchScanner("testTable", auths, 5);
+    Authorizations auths("");
+    BatchScanner scanner = connector.createBatchScanner("mytable", auths, 5);
 	
-	// construct ranges
-	Range range1(new Key("A"), new Key("Z");
-	Range range2(new Key("a"), new Key("z");
+    // construct ranges
+    Key r1s; r1s.row = "abc1";
+    Key r1e; r1e.row = "def1";
+    Key r2s; r2s.row = "acd1";
+    Key r2e; r2e.row = "dhi3";
+    Range range1;
+    range1.start = r1s;
+    range1.stop = r1e;
+    Range range2;
+    range2.start = r2s;
+    range2.stop = r2e;
 	
-	vector<Range> ranges;
-	ranges.push_back(range1);
-	ranges.push_back(range2);
+    vector<Range> ranges;
+    ranges.push_back(range1);
+    ranges.push_back(range2);
 	
-	scanner.setRanges(ranges);
-	scanner.fetchColumn("department", "1");
+    scanner.setRanges(ranges);
+    scanner.fetchColumnFamily("columnf");
 	
-	BatchScannerIterator itr = scanner.iterator();
+    BatchScannerIterator itr = scanner.iterator();
 	
-	while(itr.hasNext()) {
+    while(itr.hasNext()) {
+	KeyValue kv = itr.next();
 
-		KeyValue kv = itr.next();
+	cout << kv.key.row << " " << kv.key.colFamily << ":" 
+	     << kv.key.colQualifier << " [" << kv.key.colVisibility 
+	     << "] " << kv.key.timestamp << "\t" << kv.value << "\n";
 
-		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
-			 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
-			 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
-
-	}
+    }
 	
-	itr.close();
-	connector.close();
-	
-} catch(AccumuloSecurityException &e) {
-	cout << "There was a problem with the given credentials.\n";
+    itr.close();
+    connector.close();
 
-} catch(TableNotFoundException &e) {
-	cout << "The specified table was not found.\n";
-}
 ```
 
