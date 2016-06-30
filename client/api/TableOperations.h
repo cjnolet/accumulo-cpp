@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <boost/shared_ptr.hpp>
-#include "../proxy/AccumuloProxy.h"
+#include "AccumuloProxy.h"
 
 #ifndef TABLE_OPERATIONS_H
 #define TABLE_OPERATIONS_H

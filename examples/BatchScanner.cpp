@@ -9,12 +9,20 @@ int main(int argc, char* argv[]) {
 	
 	Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
-	Authorizations auths("A,B");
+	Authorizations auths("");
 	BatchScanner scanner = connector.createBatchScanner(argv[5], auths, 5);
 	
 	// construct ranges
-	Range range1(new Key(argv[6]), new Key(argv[7]));
-	Range range2(new Key(argv[8]), new Key(argv[9]));
+	Key r1s; r1s.row = argv[6];
+	Key r1e; r1e.row = argv[7];
+	Key r2s; r2s.row = argv[8];
+	Key r2e; r2e.row = argv[9];
+	Range range1;
+	range1.start = r1s;
+	range1.stop = r1e;
+	Range range2;
+	range2.start = r2s;
+	range2.stop = r2e;
 	
 	vector<Range> ranges;
 	ranges.push_back(range1);
@@ -40,9 +48,9 @@ int main(int argc, char* argv[]) {
 	while(itr.hasNext()) {
 		KeyValue kv = itr.next();
 
-		cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
-			 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
-			 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+		cout << kv.key.row << " " << kv.key.colFamily << ":" 
+			 << kv.key.colQualifier << " [" << kv.key.colVisibility 
+			 << "] " << kv.key.timestamp << "\t" << kv.value << "\n";
 
 	}
 	

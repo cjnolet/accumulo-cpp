@@ -121,7 +121,7 @@ const KeyValue BatchScannerIterator::next() {
 	
 	if(hasNext()) {
 		client.get()->nextEntry(kvap, scannerToken);
-		kv = kvap.getKeyValue();
+		kv = kvap.keyValue;
 	}
 
 	return kv;
@@ -204,7 +204,7 @@ const KeyValue ScannerIterator::next() {
 	
 	if(hasNext()) {
 		client.get()->nextEntry(kvap, scannerToken);
-		kv = kvap.getKeyValue();
+		kv = kvap.keyValue;
 	}
 
 	return kv;

@@ -2,9 +2,10 @@
 TARGETS=target/batchScannerExample target/scannerExample \
 	target/createTableExample target/batchWriterExample
 
-all: target ${TARGETS}
+all: target gen-cpp ${TARGETS}
 
-#CXXFLAGS=-DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H
+CXXFLAGS += -Igen-cpp
+
 LIBS=-lthrift
 
 clean:
@@ -13,12 +14,17 @@ clean:
 target:
 	mkdir -p target/
 
+gen-cpp: proxy.thrift
+	rm -rf $@
+	mkdir $@
+	thrift --allow-64bit-consts --out $@ --gen cpp proxy.thrift
+
 CLIENT_OBJS=client/api/TableOperations.o client/AccumuloAPI.o \
-	client/proxy/proxy_types.o client/proxy/AccumuloProxy.o \
-	client/proxy/proxy_constants.o
+	gen-cpp/AccumuloProxy.o gen-cpp/proxy_types.o \
+	gen-cpp/proxy_constants.o
 
 target/batchScannerExample: ${CLIENT_OBJS} examples/BatchScanner.o
-	${CXX} ${CXXFLAGS} ${CLIENT_OBJS} examples/BatchScanner.o \
+	${CXX} ${CXXFLAGS} examples/BatchScanner.o ${CLIENT_OBJS} \
 		${LIBS} -o $@
 
 target/scannerExample: ${CLIENT_OBJS} examples/Scanner.o

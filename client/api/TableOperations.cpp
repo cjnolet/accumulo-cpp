@@ -18,8 +18,10 @@ void TableOperations::addSplits(const string &tableName, const set<string> &spli
 
 void TableOperations::compactTable(string &tableName, string &startRow, string &endRow, const vector<IteratorSetting> &iterators, 
 								   const bool flush, const bool wait) {
-									
-	client->compactTable(login, tableName, startRow, endRow, iterators, flush, wait);
+
+  // FIXME: Should do something with this.
+  CompactionStrategyConfig compactionstrategy;
+  client->compactTable(login, tableName, startRow, endRow, iterators, flush, wait, compactionstrategy);
 }
 
 void TableOperations::cancelCompaction(const std::string& tableName) {

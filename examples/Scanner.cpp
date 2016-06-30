@@ -12,10 +12,15 @@ int main(int argc, char* argv[]) {
 		
 		Connector connector(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
-		Authorizations auths("A,B");
+		Authorizations auths("");
 		Scanner scanner = connector.createScanner(argv[5], auths);
 
-		Range range(new Key(argv[6]), new Key(argv[7]));
+		Key ks, ke;
+		ks.row = argv[6]; ke.row = argv[7];
+
+		Range range;
+		range.start = ks;
+		range.stop = ke;
 
 		scanner.setRange(range);
 
@@ -37,9 +42,9 @@ int main(int argc, char* argv[]) {
 		while(itr.hasNext()) {
 			KeyValue kv = itr.next();
 
-			cout << kv.getKey().getRow() << " " << kv.getKey().getColFamily() << ":" 
-				 << kv.getKey().getColQualifier() << " [" << kv.getKey().getColVisibility() 
-				 << "] " << kv.getKey().getTimestamp() << "\t" << kv.getValue() << "\n";
+			cout << kv.key.row << " " << kv.key.colFamily << ":" 
+				 << kv.key.colQualifier << " [" << kv.key.colVisibility
+				 << "] " << kv.key.timestamp << "\t" << kv.value << "\n";
 
 		}
 

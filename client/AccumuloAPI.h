@@ -3,7 +3,7 @@
 #include <thrift/transport/TSocket.h>
 #include <thrift/transport/TBufferTransports.h>
 #include <thrift/protocol/TCompactProtocol.h>
-#include "proxy/AccumuloProxy.h"
+#include "AccumuloProxy.h"
 #include "api/TableOperations.h"
 
 #ifndef ACCUMULO_API_H
