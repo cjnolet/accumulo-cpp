@@ -1,25 +1,37 @@
-all: build batchScannerExample scannerExample createTableExample batchWriterExample
+
+TARGETS=target/batchScannerExample target/scannerExample \
+	target/createTableExample target/batchWriterExample
+
+all: target ${TARGETS}
+
+CXXFLAGS=-DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H
+CXXFLAGS += -I/usr/local/include/thrift/
+CXXFLAGS += -L/usr/local/lib/
+LIBS=-lthrift
 
 clean:
+	rm -rf target/*
 
-	rm -rf target/*.o
-
-build:
+target:
 	mkdir -p target/
 
-batchScannerExample: build
-	
-	g++ -DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H client/*.cpp client/api/*.cpp client/proxy/*.cpp examples/BatchScanner.cpp -I /usr/local/include/thrift/ -L /usr/local/lib/ -lthrift -o target/BatchScannerExample.o
-	
-scannerExample: build
-	
-	g++ -DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H client/*.cpp client/api/*.cpp client/proxy/*.cpp examples/Scanner.cpp -I /usr/local/include/thrift/ -L /usr/local/lib/ -lthrift -o target/ScannerExample.o
-	
-batchWriterExample: build
-	
-	g++ -DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H client/*.cpp client/api/*.cpp client/proxy/*.cpp examples/BatchWriter.cpp -I /usr/local/include/thrift/ -L /usr/local/lib/ -lthrift -o target/BatchWriterExample.o
-	
-createTableExample: build
-	
-	g++ -DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H client/*.cpp client/api/*.cpp client/proxy/*.cpp examples/CreateTable.cpp -I /usr/local/include/thrift/ -L /usr/local/lib/ -lthrift -o target/CreateTableExample.o
-	
+CLIENT_OBJS=client/api/TableOperations.o client/AccumuloAPI.o \
+	client/proxy/proxy_types.o client/proxy/AccumuloProxy.o \
+	client/proxy/proxy_constants.o
+
+target/batchScannerExample: ${CLIENT_OBJS} examples/BatchScanner.o
+	${CXX} ${CXXFLAGS} ${CLIENT_OBJS} examples/BatchScanner.o \
+		${LIBS} -o $@
+
+target/scannerExample: ${CLIENT_OBJS} examples/Scanner.o
+	${CXX} ${CXXFLAGS} ${CLIENT_OBJS} examples/Scanner.o ${LIBS} \
+		-o $@
+
+target/batchWriterExample: ${CLIENT_OBJS} examples/BatchWriter.o
+	${CXX} ${CXXFLAGS} ${CLIENT_OBJS} examples/BatchWriter.o ${LIBS} \
+		-o $@
+
+target/createTableExample: ${CLIENT_OBJS} examples/CreateTable.o
+	${CXX} ${CXXFLAGS} ${CLIENT_OBJS} examples/CreateTable.o \
+		${LIBS} -o $@
+
