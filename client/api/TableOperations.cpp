@@ -1,7 +1,7 @@
 #include "TableOperations.h"
 
 
-TableOperations::TableOperations(shared_ptr<AccumuloProxyClient> client, const string &login) {
+TableOperations::TableOperations(boost::shared_ptr<AccumuloProxyClient> client, const string &login) {
 	
 	this->login = login;
 	this->client = client;

@@ -53,7 +53,7 @@ void Mutation::clear() {
 }
 
 
-BatchWriter::BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
+BatchWriter::BatchWriter(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
 		const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads) {
 	
 	WriterOptions writerOptions;
@@ -98,7 +98,7 @@ void BatchWriter::close() {
 	client->closeWriter(writerToken);
 }
 
-BatchScannerIterator::BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName, 
+BatchScannerIterator::BatchScannerIterator(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName, 
 				BatchScanOptions &options) {
 					
 	this->client = proxyClient;
@@ -131,7 +131,7 @@ void BatchScannerIterator::close() {
 	client.get()->closeScanner(scannerToken);
 }
 
-BatchScanner::BatchScanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+BatchScanner::BatchScanner(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 		const Authorizations &authorizations, const int32_t numThreads) {
 
 	set<string> auths = authorizations.getAuthorizations();
@@ -181,7 +181,7 @@ void BatchScanner::attachScanIterator(const IteratorSetting &iteratorSetting) {
 	iterators.push_back(iteratorSetting);
 }
 
-ScannerIterator::ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+ScannerIterator::ScannerIterator(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 				ScanOptions &options) {
 					
 	this->client = proxyClient;
@@ -214,7 +214,7 @@ void ScannerIterator::close() {
 	client.get()->closeScanner(scannerToken);
 }
 
-Scanner::Scanner(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
+Scanner::Scanner(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string& login, const string& tableName, 
 		const Authorizations &authorizations) {
 
 	set<string> auths = authorizations.getAuthorizations();
@@ -266,9 +266,9 @@ void Scanner::attachScanIterator(const IteratorSetting &iteratorSetting) {
 
 Connector::Connector(const string& host, int port, const string& username, const string& password) {
 
-	shared_ptr<TSocket> newSocket(new TSocket(host, port));
-	shared_ptr<TTransport> newTransport(new TFramedTransport(newSocket));
-	shared_ptr<TProtocol> newProtocol(new TCompactProtocol(newTransport));
+	boost::shared_ptr<TSocket> newSocket(new TSocket(host, port));
+	boost::shared_ptr<TTransport> newTransport(new TFramedTransport(newSocket));
+	boost::shared_ptr<TProtocol> newProtocol(new TCompactProtocol(newTransport));
 
 	socket = newSocket;
 	transport = newTransport;

@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
-#include <transport/TSocket.h>
-#include <transport/TBufferTransports.h>
-#include <protocol/TCompactProtocol.h>
+#include <thrift/transport/TSocket.h>
+#include <thrift/transport/TBufferTransports.h>
+#include <thrift/protocol/TCompactProtocol.h>
 #include "proxy/AccumuloProxy.h"
 #include "api/TableOperations.h"
 
@@ -44,14 +44,14 @@ public:
 
 class BatchWriter {
 
-	shared_ptr<AccumuloProxyClient> client;
+	boost::shared_ptr<AccumuloProxyClient> client;
 	string login;
 	string writerToken;
 	string tableName;
 		
 public:
 	
-	BatchWriter(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
+	BatchWriter(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName,
 	       const int64_t maxMemory, const int64_t latencyMs, const int64_t timeoutMs, const int32_t numThreads);
 	~BatchWriter();
 	void addMutation(Mutation &mutation);
@@ -61,14 +61,14 @@ public:
 
 class BatchScannerIterator {
 
-	shared_ptr<AccumuloProxyClient> client;
+	boost::shared_ptr<AccumuloProxyClient> client;
 	BatchScanOptions options;
 	string login;
 	string scannerToken;
 	string tableName;
 
 public:
-	BatchScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName, BatchScanOptions &options); 
+	BatchScannerIterator(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string &login, const string &tableName, BatchScanOptions &options); 
 	bool hasNext(void);
 	const KeyValue next(void);
 	void close();
@@ -77,7 +77,7 @@ public:
 // TODO: Combine Scanner & BatchScanner into implementations of a class with pluggable options
 class BatchScanner {
 	
-		shared_ptr<AccumuloProxyClient> client;
+		boost::shared_ptr<AccumuloProxyClient> client;
 
 		vector<ScanColumn> columns;
 		vector<IteratorSetting> iterators;
@@ -87,7 +87,7 @@ class BatchScanner {
 		string tableName;
 
 	public:
-		BatchScanner(shared_ptr<AccumuloProxyClient> client, const string& login, const string& tableName, 
+		BatchScanner(boost::shared_ptr<AccumuloProxyClient> client, const string& login, const string& tableName, 
 				const Authorizations &authorizations, int32_t numThreads);
 		BatchScannerIterator iterator(void);
 		void setRanges(const vector<Range> &ranges);
@@ -98,14 +98,14 @@ class BatchScanner {
 
 class ScannerIterator {
 	
-	shared_ptr<AccumuloProxyClient> client;
+	boost::shared_ptr<AccumuloProxyClient> client;
 	ScanOptions options;
 	string login;
 	string scannerToken;
 	string tableName;
 	
 public:
-	ScannerIterator(shared_ptr<AccumuloProxyClient> proxyClient, const string& login, 
+	ScannerIterator(boost::shared_ptr<AccumuloProxyClient> proxyClient, const string& login, 
 					const string& tableName, ScanOptions &options); 
 	bool hasNext(void);
 	const KeyValue next(void);
@@ -115,7 +115,7 @@ public:
 
 class Scanner {
 	
-	shared_ptr<AccumuloProxyClient> client;
+	boost::shared_ptr<AccumuloProxyClient> client;
 	
 	vector<ScanColumn> columns;
 	vector<IteratorSetting> iterators;
@@ -125,7 +125,7 @@ class Scanner {
 	string tableName;
 	
 public:
-	Scanner(shared_ptr<AccumuloProxyClient> client, const string& login, const string& tableName, 
+	Scanner(boost::shared_ptr<AccumuloProxyClient> client, const string& login, const string& tableName, 
 			const Authorizations &authorizations);
 	ScannerIterator iterator(void);
 	void setRange(const Range &range);
@@ -141,11 +141,11 @@ class Connector {
 	
 	string login;
 	
-	shared_ptr<TSocket> socket;
-	shared_ptr<TTransport> transport;
-	shared_ptr<TProtocol> protocol;
+	boost::shared_ptr<TSocket> socket;
+	boost::shared_ptr<TTransport> transport;
+	boost::shared_ptr<TProtocol> protocol;
 
-	shared_ptr<AccumuloProxyClient> client;
+	boost::shared_ptr<AccumuloProxyClient> client;
 	
 public:
 

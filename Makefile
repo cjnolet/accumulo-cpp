@@ -4,9 +4,7 @@ TARGETS=target/batchScannerExample target/scannerExample \
 
 all: target ${TARGETS}
 
-CXXFLAGS=-DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H
-CXXFLAGS += -I/usr/local/include/thrift/
-CXXFLAGS += -L/usr/local/lib/
+#CXXFLAGS=-DHAVE_CONFIG_H -DHAVE_NETINIET_IN_H
 LIBS=-lthrift
 
 clean:
